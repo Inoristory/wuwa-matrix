@@ -1,137 +1,146 @@
-# 鸣潮 · 矩阵叠兵编队规划器
+﻿# 鸣潮 · 矩阵叠兵
 
-纯前端单页应用，零外部依赖，双击 `index.html` 即用。
+一个用于规划《鸣潮》角色编队的纯前端单页工具。支持角色池管理、拖拽编队、使用次数、搜索筛选、数据导入导出，以及桌面端和移动端操作。
+
+## 在线使用
+
+- **GitHub Pages**：<https://inoristory.github.io/wuwa-matrix/>
+- **项目仓库**：<https://github.com/Inoristory/wuwa-matrix>
+
+打开网页后即可使用，不需要注册账号，也不会上传你的编队数据。配置默认保存在浏览器的 `localStorage` 中。
 
 ## 快速开始
 
+### 直接打开
+
+下载或克隆项目后，直接打开根目录的 `index.html` 即可运行。
+
 ```bash
-git clone <repo>
-cd 鸣潮/矩阵叠兵
-# 直接双击 index.html 在浏览器打开
+git clone https://github.com/Inoristory/wuwa-matrix.git
+cd wuwa-matrix
 ```
 
-部署时保留整个项目目录，或上传 `index.html`、`css/`、`js/`、`data/`、`assets/` 目录即可。
+### 本地开发服务器
 
-## 功能
+如果浏览器限制了 `file://` 下的 JSON 请求，使用项目自带的开发服务器：
 
-### 编队
-- **角色池** — 按稀有度分组展示已拥有角色及剩余使用次数（次数 / 上限），支持折叠分组
-- **拖拽编队** — 从池拖入编队自动填入首个空槽；编队间拖拽自动交换/移动；移回角色池释放
-- **无限编队** — 每队最多 3 人，数量不限，支持拖拽排序
-- **自动建队** — 拖角色到 "+ 添加编队" 按钮，或双击角色池卡片
-- **双列布局** — 编队列表可切换单/双列，偏好持久化至 localStorage
-- **上锁** — 单队锁定，锁定后拒绝拖入/拖出/删除/重排/重命名，管理模态框操作不受影响
+```bash
+npm run dev
+```
+
+然后访问终端显示的本地地址。
+
+### 运行测试
+
+```bash
+npm test
+```
+
+测试会检查角色数量、生成数据、JavaScript 语法和基础状态逻辑。
+
+## 主要功能
+
+### 编队规划
+
+- 角色池按稀有度分组展示，并显示剩余使用次数。
+- 从角色池拖入队伍，自动填入第一个空槽位。
+- 支持队伍内换位、队伍间移动、移回角色池和拖拽排序。
+- 每队最多 3 名角色，队伍数量不限。
+- 支持双击角色快速创建队伍。
+- 支持单列/双列布局和单队锁定。
 
 ### 角色管理
-- **拥有状态** — 弹窗批量切换，支持分组全选/清空
-- **点数设置** — 1~3 次使用上限，弹窗调整个别角色，归零自动从角色池消失
-- **搜索** — 中文 / 拼音全拼 / 拼音首字母，叠加属性筛选
-- **键盘操作** — TabIndex + Enter/Space 操作所有角色卡片
 
-### 数据
-- **自动保存** — 所有操作即时写入 `localStorage`
-- **导出 / 导入** — JSON 格式，含数据版本迁移
-- **重置** — 确认弹窗保护，一键恢复默认
-- **`data/json/characters.json`** — 外部数据源，`file://` 失败自动使用内置兜底数据
+- 在“管理角色”中批量设置角色拥有状态。
+- 为每名角色设置 1～3 次使用上限。
+- 使用中文、拼音全拼或拼音首字母搜索角色。
+- 支持按属性筛选，并支持键盘操作角色卡片。
 
-## 操作
+### 数据管理
 
-| 操作 | 桌面 | 移动端 |
-|------|------|--------|
-| 加入编队 | 拖拽到槽位 | 长按 180ms 启动拖拽 |
-| 编队内换位 | 拖拽 | 拖拽 |
-| 编队间移动 | 拖拽到另一队 | 拖拽 |
-| 移回角色池 | 拖拽到角色池区域 | 拖拽或双击 |
-| 快速建队 | 拖到 "+" 按钮 | 双击角色池卡片 |
-| 重命名 | 点击标题 | 点击标题 |
-| 排序 | 拖拽 ⋮⋮ 手柄 | 拖拽 ⋮⋮ 手柄 |
-| 删除编队 | 点击 × 按钮 | 点击 × 按钮（确认弹窗） |
-| 锁定/解锁 | 点击 🔒 图标 | 点击 🔒 图标 |
+- 所有操作自动保存到浏览器本地存储。
+- 支持 JSON 格式导出和导入。
+- 支持版本迁移，方便后续更新数据结构。
+- JSON 数据加载失败时自动使用内置的离线兜底数据。
+- 支持浅色/深色主题，偏好会保存在本地。
 
-## 技术栈
+## 操作说明
 
-| 项目 | 说明 |
-|------|------|
-| 框架 | 无（HTML5 + CSS3 + Vanilla JS） |
-| 设计模式 | 事件委托、rAF 节流、局部渲染、生成计数器 |
-| 拖拽 | HTML5 Drag API（桌面）+ Pointer Events（移动端） |
-| 持久化 | `localStorage` + `DATA_VERSION` 迁移 |
-| 头像 | CDN WebP + onerror 隐藏回退 + 本地 PNG |
-| 搜索 | 中文 + `splitPinyin()` 拼音映射 |
-| 星域背景 | Canvas 三层叠加（径向光晕 + 网格线 + 顶点闪烁）+ specks.js 四角星粒子 |
+| 操作 | 桌面端 | 移动端 |
+| --- | --- | --- |
+| 加入队伍 | 拖拽角色到槽位 | 长按约 180ms 后拖拽 |
+| 队伍内换位 | 拖拽角色 | 拖拽角色 |
+| 队伍间移动 | 拖拽到另一队 | 拖拽到另一队 |
+| 移回角色池 | 拖拽到角色池 | 拖拽或双击 |
+| 快速建队 | 拖到“+ 添加编队” | 双击角色卡片 |
+| 重命名队伍 | 点击队伍标题 | 点击队伍标题 |
+| 调整顺序 | 拖拽 ⋮⋮ 手柄 | 拖拽 ⋮⋮ 手柄 |
+| 删除队伍 | 点击 × | 点击 × 并确认 |
+| 锁定队伍 | 点击锁定图标 | 点击锁定图标 |
 
-### 文件结构
+## 项目结构
 
-```
-矩阵叠兵/
-├── index.html           # 入口
+```text
+wuwa-matrix/
+├── index.html                 # 页面入口
 ├── css/
-│   └── style.css        # 全部样式（双主题、8 级响应式）
+│   └── style.css              # 页面样式与响应式布局
 ├── js/
-│   ├── script.js        # 应用编排与页面逻辑
-│   ├── core/
-│   │   └── storage.js   # 统一存储读写
-│   ├── data/
-│   │   └── loader.js    # 数据加载与校验
-│   ├── interaction/
-│   │   └── drag.js      # 拖拽交互初始化
-│   └── specks.js        # 四角星粒子动画
+│   ├── script.js              # 应用状态、渲染和事件编排
+│   ├── core/storage.js        # localStorage 读写与数据迁移
+│   ├── data/loader.js         # 角色数据加载与校验
+│   ├── interaction/drag.js    # 拖拽初始化
+│   └── specks.js              # 背景星点动画
 ├── data/
-│   ├── json/
-│   │   └── characters.json # 角色静态数据
-│   └── js/
-│       └── data.generated.js # 离线兜底数据（自动生成）
-├── assets/
-│   └── png/卫星图片/    # 测试服/卫星角色本地头像
-├── tools/mjs/            # 构建、开发服务器和测试脚本
-└── docs/md/              # 项目文档
+│   ├── json/characters.json   # 角色数据源
+│   └── js/data.generated.js   # 自动生成的离线兜底数据
+├── assets/png/                # 本地角色头像资源
+├── tools/mjs/                 # 数据构建、开发服务器和测试脚本
+└── docs/md/                   # 版本顺序等补充文档
 ```
 
-### 数据流
+## 数据流程
 
-```
-data/js/data.generated.js → js/data/loader.js
-      ↓                             ↓
-fetch(data/json/characters.json) → applyData()
-      ↓
-validate + buildDerivedData()
-      ↓
-startApp() → loadState() + 事件绑定
-      ↓
-用户操作 → 修改 state → saveState() → renderAll()
+```text
+data/json/characters.json
+          │
+          ├── loader.js 加载、校验、构建派生数据
+          │
+          └── script.js 初始化界面和用户状态
+                         │
+                         └── 用户操作 → 保存 localStorage → 局部更新界面
 ```
 
-## 维护
+## 技术特点
 
-### 添加新角色
+- 原生 HTML5、CSS3 和 Vanilla JavaScript，无前端框架依赖。
+- 使用事件委托、局部渲染和 `requestAnimationFrame` 减少重复计算。
+- 桌面端使用 HTML5 Drag API，移动端使用 Pointer Events。
+- 头像优先使用 CDN WebP，失败时自动隐藏或回退到本地资源。
+- 支持响应式布局、键盘访问和触摸操作。
+- 使用 Canvas 与粒子效果绘制背景，不影响核心功能使用。
 
-1. 在 `ALL_CHARACTERS` 数组末尾插入
-2. 若 CDN 有头像，在 `NANOKA_IDS` 添加 ID 映射
-3. 若无 CDN 头像，在 `LOCAL_IMAGES` 添加路径并将 PNG 放入 `assets/png/卫星图片/`
-4. 可选同步更新 `data/json/characters.json`，然后运行 `npm run build:data`
+## 维护角色数据
 
-### 稀有度分组
+角色数据主要位于 `data/json/characters.json`，修改后运行：
 
-| 分组 | `rarity` | 说明 |
-|------|----------|------|
-| 5★ 限定 | `'limited'` | — |
-| 5★ 常驻 | `'standard'` | — |
-| 漂泊者 | `'rover'` | 4 形态互通 |
-| 4★ | `'four'` | — |
-| 测试服 | `'beta'` | 未上线 |
-| 卫星 | `'satellite'` | 未实装 |
+```bash
+npm run build:data
+npm test
+```
 
-### 数据迁移
+如果角色使用 CDN 头像，需要同步更新头像 ID 映射；没有 CDN 头像的角色则放入 `assets/png/` 并配置本地路径。
 
-1. 递增 `DATA_VERSION`
-2. 在 `migrateState()` 添加逻辑
-3. 迁移自动应用于 `loadState()` 和 `importData()`
+## GitHub Pages 部署
 
-## 设计细节
+项目是静态网站，可以直接从 GitHub Pages 的 `main` 分支根目录发布：
 
-- **主题**：浅色（暖米色）/ 深色（深灰黑），`data-theme` 属性切换
-- **响应式**：480px–1600px 共 8 个断点
-- **深色背景**：Canvas 三层（径向光晕 + 网格 + 闪烁节点）+ 四角星粒子（`#4c50be` 径向渐变 + 描边辉光）
-- **防误触**：拖拽阈值 8px、长按 180ms、确认弹窗覆盖所有破坏性操作
-- **性能**：rAF 节流指针事件、`passive: true` 监听器、`cancelAnimationFrame` 防抖 canvas 重建、`requestIdleCallback` 低优先级任务
-- **锁定保护**：Lock 图标直接渲染在 SVG 中，锁定态阻止所有拖拽/删除/重命名，保留管理模态框操作路径
+1. 打开仓库的 `Settings → Pages`。
+2. 在 **Source** 中选择 **Deploy from a branch**。
+3. 选择分支 `main` 和目录 `/ (root)`。
+4. 保存后等待 GitHub 完成首次构建。
+5. 访问 <https://inoristory.github.io/wuwa-matrix/>。
+
+## 许可证
+
+本项目目前未声明单独的开源许可证。项目中的游戏角色名称、头像及相关素材版权归其原权利人所有。
