@@ -1707,109 +1707,188 @@ function toggleTheme() {
 // ==================== STARFIELD GRID ====================
 function initStarfieldGrid() {
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
   const canvas = document.createElement('canvas');
   canvas.className = 'starfield-grid';
   canvas.setAttribute('aria-hidden', 'true');
   document.body.prepend(canvas);
+
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const ctx = canvas.getContext('2d');
-  let cw = 0, ch = 0;
-  let rafId = null;
-  let running = false;
-  let hidden = false;
-
-  const GRID_SIZE = 50;
-  const VERTEX_SPARKLE_COUNT = 50;
-
   const bgCanvas = document.createElement('canvas');
   const bgCtx = bgCanvas.getContext('2d');
+  let cw = 0;
+  let ch = 0;
+  let rafId = null;
+  let resizeRaf = null;
+  let running = false;
+  let hidden = false;
+  let startTime = 0;
+  let lastFrameTime = 0;
+  const FRAME_INTERVAL = 1000 / 30;
 
-  const sparkles = [];
+  const themes = {
+    light: {
+      base: '#f7f4ec',
+      glow: ['230, 196, 106', '205, 221, 226'],
+      line: 'rgba(184, 135, 47, 0.10)',
+      wing: '184, 135, 47',
+      wingHighlight: '255, 240, 184',
+      sparkle: '230, 196, 106',
+      grid: 72,
+      sparkleCount: 16,
+      particle: { max: 4, spawnMin: 110, spawnMax: 220 }
+    },
+    dark: {
+      base: '#071321',
+      glow: ['29, 93, 134', '109, 213, 238'],
+      line: 'rgba(77, 139, 169, 0.12)',
+      wing: '55, 132, 171',
+      wingHighlight: '109, 213, 238',
+      sparkle: '109, 213, 238',
+      grid: 68,
+      sparkleCount: 24,
+      particle: { max: 8, spawnMin: 72, spawnMax: 160 }
+    }
+  };
 
-  function VertexSparkle() {
-    this.speed = 0.2 + Math.random() * 0.8;
-    this.phase = Math.random() * Math.PI * 2;
-    this.maxSize = 3 + Math.random() * 4;
-    this.randomizePos();
+  function getThemeName() {
+    return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
   }
-  VertexSparkle.prototype.randomizePos = function() {
-    const cols = Math.max(1, Math.floor(cw / GRID_SIZE));
-    const rows = Math.max(1, Math.floor(ch / GRID_SIZE));
-    this.x = (Math.floor(Math.random() * cols)) * GRID_SIZE;
-    this.y = (Math.floor(Math.random() * rows)) * GRID_SIZE;
-  };
-  VertexSparkle.prototype.update = function(time) {
-    const val = (Math.sin(time * this.speed + this.phase) + 1) / 2;
-    this.opacity = val;
-    this.size = this.maxSize * (0.2 + val * 0.8);
-  };
-  VertexSparkle.prototype.draw = function(c) {
-    if (this.opacity < 0.02) return;
-    c.save();
-    c.globalCompositeOperation = 'lighter';
 
-    const gridSize = 50;
-    const range = Math.ceil(this.size);
-    const glowColor = '75, 65, 145';
-    c.lineWidth = 1.5;
+  function getTheme() {
+    return themes[getThemeName()];
+  }
 
-    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
-    for (let d = 0; d < dirs.length; d++) {
-      const dx = dirs[d][0], dy = dirs[d][1];
-      for (let i = 1; i <= range; i++) {
-        const t = i / range;
-        const segOpacity = this.opacity * (1 - t) * 0.45;
-        if (segOpacity < 0.01) continue;
-        c.strokeStyle = 'rgba(' + glowColor + ', ' + segOpacity + ')';
-        c.beginPath();
-        c.moveTo(this.x + dx * (i - 1) * gridSize, this.y + dy * (i - 1) * gridSize);
-        c.lineTo(this.x + dx * i * gridSize, this.y + dy * i * gridSize);
-        c.stroke();
+  function rgba(rgb, alpha) {
+    return 'rgba(' + rgb + ', ' + alpha + ')';
+  }
+
+  function drawCurve(target, points, color, width, alpha) {
+    target.save();
+    target.strokeStyle = rgba(color, alpha);
+    target.lineWidth = width;
+    target.lineCap = 'round';
+    target.beginPath();
+    target.moveTo(points[0], points[1]);
+    target.bezierCurveTo(points[2], points[3], points[4], points[5], points[6], points[7]);
+    target.stroke();
+    target.restore();
+  }
+
+  function drawLightWings(target, theme, time, animated) {
+    const pulse = animated ? Math.sin(time * 0.18) * 0.018 : 0;
+    for (let side = -1; side <= 1; side += 2) {
+      for (let i = 0; i < 10; i++) {
+        const t = i / 9;
+        const startX = cw * 0.5 + side * (i * 3);
+        const startY = ch * 0.055 + i * 2;
+        const endX = side < 0 ? cw * (0.04 + t * 0.34) : cw * (0.96 - t * 0.34);
+        const endY = ch * (0.18 + t * 0.28);
+        const bend = side * cw * (0.18 + t * 0.05);
+        const alpha = 0.045 + t * 0.055 + pulse;
+        const wingColor = i % 4 === 0 ? theme.wingHighlight : theme.wing;
+        drawCurve(target, [startX, startY, startX + bend, ch * (0.04 + t * 0.03), endX - bend * 0.18, endY - ch * 0.10, endX, endY], wingColor, 0.8 + t * 0.5, alpha);
       }
     }
+  }
 
-    c.restore();
-  };
-
-  function initSparkles() {
-    sparkles.length = 0;
-    for (let i = 0; i < VERTEX_SPARKLE_COUNT; i++) {
-      sparkles.push(new VertexSparkle());
+  function drawDarkWings(target, theme, time, animated) {
+    const drift = animated ? Math.sin(time * 0.12) * 18 : 0;
+    for (let side = -1; side <= 1; side += 2) {
+      for (let i = 0; i < 9; i++) {
+        const t = i / 8;
+        const startX = side < 0 ? -cw * 0.06 : cw * 1.06;
+        const startY = ch * (0.18 + t * 0.10) + drift * side * 0.12;
+        const endX = side < 0 ? cw * (0.34 + t * 0.07) : cw * (0.66 - t * 0.07);
+        const endY = ch * (0.42 + t * 0.20);
+        const bend = side * cw * (0.22 + t * 0.04);
+        const alpha = 0.045 + (1 - t) * 0.055;
+        const wingColor = i % 4 === 0 ? theme.wingHighlight : theme.wing;
+        drawCurve(target, [startX, startY, startX + bend, startY - ch * 0.07, endX - bend * 0.28, endY + ch * 0.05, endX, endY], wingColor, 0.8 + (1 - t) * 0.7, alpha);
+      }
     }
+  }
+
+  function drawGrid(target, theme) {
+    target.save();
+    target.strokeStyle = theme.line;
+    target.lineWidth = 0.5;
+    target.beginPath();
+    for (let x = 0; x <= cw; x += theme.grid) {
+      target.moveTo(x, 0);
+      target.lineTo(x, ch);
+    }
+    for (let y = 0; y <= ch; y += theme.grid) {
+      target.moveTo(0, y);
+      target.lineTo(cw, y);
+    }
+    target.stroke();
+    target.restore();
   }
 
   function renderBg() {
+    const theme = getTheme();
     bgCanvas.width = cw * dpr;
     bgCanvas.height = ch * dpr;
-    bgCtx.scale(dpr, dpr);
-
-    const cx = cw * 0.5;
-    const maxDim = Math.max(cw, ch);
-
-    bgCtx.save();
-    bgCtx.globalCompositeOperation = 'lighter';
-    const g1 = bgCtx.createRadialGradient(cx, -ch * 0.1, 0, cx, -ch * 0.1, maxDim * 1.0);
-    g1.addColorStop(0,    'rgba(75, 60, 155, 0.30)');
-    g1.addColorStop(0.15, 'rgba(55, 60, 140, 0.18)');
-    g1.addColorStop(0.35, 'rgba(40, 50, 120, 0.10)');
-    g1.addColorStop(0.6,  'rgba(25, 35, 85, 0.04)');
-    g1.addColorStop(1,    'rgba(15, 20, 55, 0)');
-    bgCtx.fillStyle = g1;
+    bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    bgCtx.clearRect(0, 0, cw, ch);
+    bgCtx.fillStyle = theme.base;
     bgCtx.fillRect(0, 0, cw, ch);
-    bgCtx.restore();
 
-    bgCtx.strokeStyle = '#141727';
-    bgCtx.lineWidth = 0.5;
-    bgCtx.beginPath();
-    for (let x = 0; x <= cw; x += GRID_SIZE) {
-      bgCtx.moveTo(x, 0);
-      bgCtx.lineTo(x, ch);
+    const topGlow = bgCtx.createRadialGradient(cw * 0.5, ch * 0.02, 0, cw * 0.5, ch * 0.02, Math.max(cw, ch) * 0.78);
+    topGlow.addColorStop(0, rgba(theme.glow[0], getThemeName() === 'light' ? 0.20 : 0.15));
+    topGlow.addColorStop(0.45, rgba(theme.glow[0], 0.055));
+    topGlow.addColorStop(1, rgba(theme.glow[0], 0));
+    bgCtx.fillStyle = topGlow;
+    bgCtx.fillRect(0, 0, cw, ch);
+
+    const edgeGlow = bgCtx.createRadialGradient(cw * 0.92, ch * 0.88, 0, cw * 0.92, ch * 0.88, Math.max(cw, ch) * 0.66);
+    edgeGlow.addColorStop(0, rgba(theme.glow[1], getThemeName() === 'light' ? 0.10 : 0.13));
+    edgeGlow.addColorStop(1, rgba(theme.glow[1], 0));
+    bgCtx.fillStyle = edgeGlow;
+    bgCtx.fillRect(0, 0, cw, ch);
+
+    drawGrid(bgCtx, theme);
+    if (getThemeName() === 'light') drawLightWings(bgCtx, theme, 0, false);
+    else drawDarkWings(bgCtx, theme, 0, false);
+  }
+
+  const sparkles = [];
+  function resetSparkles() {
+    const theme = getTheme();
+    sparkles.length = 0;
+    const cols = Math.max(1, Math.floor(cw / theme.grid));
+    const rows = Math.max(1, Math.floor(ch / theme.grid));
+    for (let i = 0; i < theme.sparkleCount; i++) {
+      sparkles.push({
+        x: Math.floor(Math.random() * cols) * theme.grid,
+        y: Math.floor(Math.random() * rows) * theme.grid,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.18 + Math.random() * 0.42,
+        size: 1.2 + Math.random() * 1.8
+      });
     }
-    for (let y = 0; y <= ch; y += GRID_SIZE) {
-      bgCtx.moveTo(0, y);
-      bgCtx.lineTo(cw, y);
+  }
+
+  function drawSparkles(target, time, theme) {
+    target.save();
+    target.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < sparkles.length; i++) {
+      const star = sparkles[i];
+      const pulse = (Math.sin(time * star.speed + star.phase) + 1) / 2;
+      const alpha = 0.10 + pulse * 0.28;
+      const size = star.size * (0.65 + pulse * 0.55);
+      target.fillStyle = rgba(theme.sparkle, alpha);
+      target.beginPath();
+      target.moveTo(star.x, star.y - size);
+      target.lineTo(star.x + size * 0.55, star.y);
+      target.lineTo(star.x, star.y + size);
+      target.lineTo(star.x - size * 0.55, star.y);
+      target.closePath();
+      target.fill();
     }
-    bgCtx.stroke();
+    target.restore();
   }
 
   function resize() {
@@ -1819,14 +1898,16 @@ function initStarfieldGrid() {
     canvas.height = ch * dpr;
     canvas.style.width = cw + 'px';
     canvas.style.height = ch + 'px';
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     renderBg();
-    initSparkles();
+    resetSparkles();
+    window._backgroundParticleConfig = getTheme().particle;
+    window._backgroundThemePalette = {
+      trail: getThemeName() === 'light' ? '230, 196, 106' : '109, 213, 238',
+      core: getThemeName() === 'light' ? '230, 196, 106' : '109, 213, 238',
+      halo: getThemeName() === 'light' ? '184, 135, 47' : '55, 132, 171'
+    };
   }
-
-  let startTime = 0;
-  let lastFrameTime = 0;
-  const FRAME_INTERVAL = 1000 / 30;
 
   function draw(time) {
     if (!running || hidden) return;
@@ -1837,21 +1918,14 @@ function initStarfieldGrid() {
     lastFrameTime = time;
     if (!startTime) startTime = time;
     const elapsed = (time - startTime) / 1000;
+    const theme = getTheme();
 
     ctx.clearRect(0, 0, cw, ch);
-
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.drawImage(bgCanvas, 0, 0);
-    ctx.restore();
-
-    for (let i = 0; i < sparkles.length; i++) {
-      sparkles[i].update(elapsed);
-      sparkles[i].draw(ctx);
-    }
-
+    ctx.drawImage(bgCanvas, 0, 0, cw, ch);
+    if (getThemeName() === 'light') drawLightWings(ctx, theme, elapsed, true);
+    else drawDarkWings(ctx, theme, elapsed, true);
+    drawSparkles(ctx, elapsed, theme);
     if (window._specks) { _specks.update(cw, ch); _specks.draw(ctx); }
-
     rafId = requestAnimationFrame(draw);
   }
 
@@ -1859,6 +1933,7 @@ function initStarfieldGrid() {
     if (running) return;
     if (!canvas.isConnected) document.body.prepend(canvas);
     running = true;
+    hidden = false;
     startTime = 0;
     lastFrameTime = 0;
     canvas.style.display = 'block';
@@ -1869,7 +1944,6 @@ function initStarfieldGrid() {
     running = false;
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
     canvas.style.display = 'none';
-    if (canvas.isConnected) canvas.remove();
   }
 
   function onVisibilityChange() {
@@ -1884,37 +1958,29 @@ function initStarfieldGrid() {
       rafId = requestAnimationFrame(draw);
     }
   }
-  document.addEventListener('visibilitychange', onVisibilityChange);
 
+  document.addEventListener('visibilitychange', onVisibilityChange);
   window._starfieldRestart = function() {
     stop();
-    if (document.documentElement.dataset.theme === 'dark') {
-      resize();
-      start();
-    }
+    resize();
+    start();
   };
-
-  let resizeRaf = null;
-  function onResize() {
-    if (resizeRaf) cancelAnimationFrame(resizeRaf);
-    resizeRaf = requestAnimationFrame(() => { resizeRaf = null; resize(); });
-  }
-  window.addEventListener('resize', onResize);
   window._starfieldCleanup = function() {
     stop();
     document.removeEventListener('visibilitychange', onVisibilityChange);
     window.removeEventListener('resize', onResize);
     delete window._starfieldCleanup;
   };
-  resize();
-  if (document.documentElement.dataset.theme === 'dark') {
-    start();
-  } else {
-    canvas.style.display = 'none';
+  function onResize() {
+    if (resizeRaf) cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(() => { resizeRaf = null; resize(); });
   }
+  window.addEventListener('resize', onResize);
+
+  resize();
+  start();
 }
-// ==================== START ====================
-// --- Drag & drop helpers ---
+// ==================== START ====================// --- Drag & drop helpers ---
 function addCharToTeam(charId) {
   let teamIdx = state.teams.length - 1;
   let isNewTeam = false;

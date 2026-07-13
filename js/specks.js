@@ -1,26 +1,41 @@
-(function() {
-  var MAX = 12;
-  var SPAWN_MIN = 30;
-  var SPAWN_MAX = 120;
-  var ACCEL_FRAMES = 50;
-  var DECEL_FRAMES = 20;
-  var SHRINK_FRAMES = 40;
+﻿(function() {
+  var FALLBACK_CONFIG = { max: 4, spawnMin: 110, spawnMax: 220 };
+  var FALLBACK_PALETTE = {
+    trail: '230, 196, 106',
+    core: '230, 196, 106',
+    halo: '184, 135, 47'
+  };
+  var ACCEL_FRAMES = 42;
+  var DECEL_FRAMES = 18;
+  var SHRINK_FRAMES = 48;
+  var TRAIL_MAX_AGE = 150;
+
+  function getConfig() {
+    return window._backgroundParticleConfig || FALLBACK_CONFIG;
+  }
+
+  function getPalette() {
+    return window._backgroundThemePalette || FALLBACK_PALETTE;
+  }
+
+  function rgba(rgb, alpha) {
+    return 'rgba(' + rgb + ', ' + alpha + ')';
+  }
 
   function Speck(cw, ch) {
-    this.x = cw * 0.5 + 20 + Math.random() * (cw * 0.5 - 40);
-    this.y = 10 + Math.random() * (ch * 0.5 - 20);
-    this.peakVx = -(10 + Math.random() * 4);
-    this.driftVx = -(0.125 + Math.random() * 0.125);
-    var angle = (17 + Math.random() * 6) * Math.PI / 180;
+    this.x = cw * 0.62 + Math.random() * (cw * 0.34);
+    this.y = 10 + Math.random() * Math.max(40, ch * 0.42);
+    this.peakVx = -(7 + Math.random() * 4);
+    this.driftVx = -(0.09 + Math.random() * 0.10);
+    var angle = (15 + Math.random() * 7) * Math.PI / 180;
     var tanA = Math.tan(angle);
     this.peakVy = -this.peakVx * tanA;
     this.driftVy = -this.driftVx * tanA;
-    this.gravity = 0.0002 + Math.random() * 0.0003;
-    this.targetSize = 7 + Math.random() * 9;
+    this.gravity = 0.00015 + Math.random() * 0.00025;
+    this.targetSize = 5 + Math.random() * 6;
     this.size = 0;
     this.opacity = 0;
-    this.rotation = 0;
-    this.lineWidth = 2 + Math.random() * 1.5;
+    this.lineWidth = 1.2 + Math.random() * 1.0;
     this.alive = true;
     this.frame = 0;
     this.lifeStart = 0;
@@ -28,20 +43,18 @@
     this.trail = [];
   }
 
-  var TRAIL_MAX_AGE = 240;
-
   Speck.prototype.update = function(cw, ch) {
     if (!this.alive) return;
     this.frame++;
 
-    var growFrames = ACCEL_FRAMES + 15;
+    var growFrames = ACCEL_FRAMES + 12;
     if (this.frame <= growFrames) {
       this.size = this.targetSize * (this.frame / growFrames);
-      this.opacity = 1.0 * (this.frame / growFrames);
+      this.opacity = 0.72 * (this.frame / growFrames);
     } else if (!this.shrinking) {
       this.size = this.targetSize;
-      this.opacity = 1.0;
-      var shrinkStart = ACCEL_FRAMES + DECEL_FRAMES + 100 + Math.random() * 300;
+      this.opacity = 0.72;
+      var shrinkStart = ACCEL_FRAMES + DECEL_FRAMES + 80 + Math.random() * 240;
       if (this.frame >= shrinkStart) {
         this.shrinking = true;
         this.lifeStart = this.frame;
@@ -52,14 +65,14 @@
       var sf = this.frame - this.lifeStart;
       var t = Math.min(sf / SHRINK_FRAMES, 1);
       this.size = this.targetSize * (1 - t);
-      this.opacity = 1.0 * (1 - t);
+      this.opacity = 0.72 * (1 - t);
       if (t >= 1) { this.alive = false; return; }
     }
 
     if (this.frame <= ACCEL_FRAMES) {
-      var t = this.frame / ACCEL_FRAMES;
-      this.vx = this.peakVx * t;
-      this.vy = this.peakVy * t;
+      var at = this.frame / ACCEL_FRAMES;
+      this.vx = this.peakVx * at;
+      this.vy = this.peakVy * at;
     } else if (this.frame <= ACCEL_FRAMES + DECEL_FRAMES) {
       var dt = (this.frame - ACCEL_FRAMES) / DECEL_FRAMES;
       this.vx = this.peakVx * (1 - dt) + this.driftVx * dt;
@@ -68,6 +81,7 @@
       this.vx = this.driftVx;
       this.vy = this.driftVy;
     }
+
     this.vy += this.gravity;
     this.x += this.vx;
     this.y += this.vy;
@@ -81,39 +95,29 @@
         born: this.frame
       });
     }
-
     while (this.trail.length > 0 && this.frame - this.trail[0].born > TRAIL_MAX_AGE) {
       this.trail.shift();
     }
-
     if (this.x < -40 || this.y > ch + 40) this.alive = false;
   };
 
   Speck.prototype.draw = function(ctx) {
     if (!this.alive || this.size < 0.5) return;
-
+    var palette = getPalette();
     var trailLen = this.trail.length;
+
     if (trailLen > 1) {
       ctx.save();
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      ctx.setLineDash([3, 3]);
       var now = this.frame;
-      var w = this.trail[trailLen - 1].w;
       for (var i = 1; i < trailLen; i++) {
         var p0 = this.trail[i - 1];
         var age = now - p0.born;
-        var alpha;
-        if (age < 60) {
-          alpha = 0.55;
-        } else if (age < 240) {
-          alpha = 0.55 * (1 - (age - 60) / 180);
-          if (alpha < 0.005) continue;
-        } else {
-          continue;
-        }
-        ctx.strokeStyle = 'rgba(200, 215, 255, ' + alpha + ')';
-        ctx.lineWidth = w;
+        var alpha = age < 42 ? 0.28 : 0.28 * (1 - (age - 42) / TRAIL_MAX_AGE);
+        if (alpha < 0.008) continue;
+        ctx.strokeStyle = rgba(palette.trail, alpha);
+        ctx.lineWidth = p0.w;
         ctx.beginPath();
         ctx.moveTo(p0.x, p0.y);
         ctx.lineTo(this.trail[i].x, this.trail[i].y);
@@ -126,12 +130,12 @@
     ctx.translate(this.x, this.y);
     var s = this.size;
     var grad = ctx.createRadialGradient(0, 0, 0, 0, 0, s);
-    grad.addColorStop(0, 'rgba(76, 80, 190, 0.95)');
-    grad.addColorStop(0.3, 'rgba(76, 80, 190, 0.7)');
-    grad.addColorStop(0.6, 'rgba(76, 80, 190, 0.35)');
-    grad.addColorStop(1, 'rgba(76, 80, 190, 0)');
-    ctx.shadowBlur = s * 0.8;
-    ctx.shadowColor = 'rgba(76, 80, 190, 0.5)';
+    grad.addColorStop(0, rgba(palette.core, 0.82));
+    grad.addColorStop(0.34, rgba(palette.core, 0.52));
+    grad.addColorStop(0.68, rgba(palette.halo, 0.20));
+    grad.addColorStop(1, rgba(palette.halo, 0));
+    ctx.shadowBlur = s * 0.72;
+    ctx.shadowColor = rgba(palette.halo, 0.34);
     ctx.fillStyle = grad;
     ctx.beginPath();
     ctx.moveTo(0, -s);
@@ -144,20 +148,18 @@
     ctx.lineTo(-s * 0.25, -s * 0.25);
     ctx.closePath();
     ctx.fill();
-    ctx.strokeStyle = 'rgba(76, 80, 190, ' + (this.opacity * 0.5) + ')';
-    ctx.lineWidth = this.lineWidth * 0.5;
-    ctx.stroke();
     ctx.restore();
   };
 
   var specks = [];
-  var timeToSpawn = 30;
+  var timeToSpawn = 40;
 
   function update(cw, ch) {
+    var config = getConfig();
     timeToSpawn--;
     if (timeToSpawn <= 0) {
-      if (specks.length < MAX) specks.push(new Speck(cw, ch));
-      timeToSpawn = SPAWN_MIN + Math.random() * (SPAWN_MAX - SPAWN_MIN);
+      if (specks.length < config.max) specks.push(new Speck(cw, ch));
+      timeToSpawn = config.spawnMin + Math.random() * (config.spawnMax - config.spawnMin);
     }
     for (var i = specks.length - 1; i >= 0; i--) {
       specks[i].update(cw, ch);

@@ -1875,3 +1875,160 @@ body.content-hidden .modal {
   [data-theme="dark"] { --border: rgba(170, 170, 180, 0.65); --border-strong: rgba(210, 210, 220, 0.8); --text-dim: #c4c4cc; }
   .char-card:focus-visible, .btn:focus-visible, .filter-btn:focus-visible { outline-width: 3px; }
 }
+
+/* ========================================================================== */
+/* 玄翎雀 × 重明鸟 · 双主题背景                                              */
+/* ========================================================================== */
+:root {
+  --bg: #f7f4ec;
+  --bg-2: #ece9df;
+  --surface: rgba(255, 250, 240, 0.72);
+  --surface2: rgba(255, 252, 246, 0.64);
+  --surface3: rgba(246, 239, 222, 0.58);
+  --border: rgba(190, 159, 83, 0.22);
+  --border-strong: rgba(180, 140, 47, 0.42);
+  --text: #25231f;
+  --text-dim: #807a6d;
+  --accent: #b8872f;
+  --accent-bg: rgba(184, 135, 47, 0.10);
+  --bg-gradient: linear-gradient(135deg, #f7f4ec 0%, #f4f0e5 48%, #e9edf0 100%);
+  --bg-glass: rgba(255, 250, 240, 0.72);
+  --shadow-sm: 0 1px 3px rgba(108, 87, 43, 0.08);
+  --shadow-md: 0 8px 24px rgba(108, 87, 43, 0.10);
+  --shadow-lg: 0 18px 48px rgba(108, 87, 43, 0.14);
+  --shadow-glow: 0 0 24px rgba(230, 196, 106, 0.18);
+}
+
+[data-theme="dark"] {
+  --bg: #071321;
+  --bg-2: #0b2038;
+  --surface: rgba(11, 32, 56, 0.76);
+  --surface2: rgba(16, 43, 69, 0.68);
+  --surface3: rgba(25, 56, 84, 0.58);
+  --border: rgba(109, 213, 238, 0.18);
+  --border-strong: rgba(109, 213, 238, 0.38);
+  --text: #e6f3fb;
+  --text-dim: #8da8b8;
+  --accent: #6dd5ee;
+  --accent-bg: rgba(109, 213, 238, 0.12);
+  --bg-gradient: linear-gradient(135deg, #071321 0%, #0b2038 52%, #121a3b 100%);
+  --bg-glass: rgba(11, 32, 56, 0.76);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.22);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 20px 54px rgba(0, 0, 0, 0.38);
+  --shadow-glow: 0 0 26px rgba(109, 213, 238, 0.16);
+}
+
+html { background: var(--bg); }
+body {
+  position: relative;
+  isolation: isolate;
+  background: var(--bg);
+  background-image: var(--bg-gradient);
+  background-size: 100% 100%;
+  background-attachment: fixed;
+  animation: none;
+}
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.65s var(--ease-in-out), background 0.65s var(--ease-in-out);
+}
+
+/* 重明鸟：暖白瓷面、晨曦日轮和极轻的羽纹颗粒。 */
+body::before {
+  opacity: 0.92;
+  background:
+    radial-gradient(ellipse 62% 34% at 50% -8%, rgba(230, 196, 106, 0.28), transparent 72%),
+    radial-gradient(ellipse 40% 56% at -8% 58%, rgba(205, 221, 226, 0.34), transparent 72%),
+    radial-gradient(ellipse 42% 54% at 108% 86%, rgba(242, 218, 163, 0.28), transparent 72%),
+    linear-gradient(135deg, rgba(255, 250, 240, 0.82), rgba(232, 237, 240, 0.48));
+}
+body::after {
+  opacity: 0.28;
+  background-image:
+    radial-gradient(circle at 24% 18%, rgba(184, 135, 47, 0.18) 0 0.7px, transparent 0.9px),
+    radial-gradient(circle at 76% 68%, rgba(130, 149, 168, 0.16) 0 0.65px, transparent 0.85px);
+  background-size: 18px 18px, 23px 23px;
+  mask-image: linear-gradient(135deg, transparent 0%, black 34%, black 74%, transparent 100%);
+  -webkit-mask-image: linear-gradient(135deg, transparent 0%, black 34%, black 74%, transparent 100%);
+}
+
+/* 玄翎雀：深海蓝、冷青光带和夜羽空间。 */
+[data-theme="dark"] body {
+  background: #071321;
+  background-image: var(--bg-gradient);
+}
+[data-theme="dark"] body::before {
+  opacity: 1;
+  background:
+    radial-gradient(ellipse 52% 45% at 8% 8%, rgba(29, 93, 134, 0.34), transparent 72%),
+    radial-gradient(ellipse 48% 52% at 96% 88%, rgba(39, 55, 109, 0.38), transparent 74%),
+    radial-gradient(ellipse 38% 28% at 56% 42%, rgba(109, 213, 238, 0.06), transparent 76%),
+    linear-gradient(135deg, #071321 0%, #0b2038 54%, #121a3b 100%);
+}
+[data-theme="dark"] body::after {
+  opacity: 0.36;
+  background-image:
+    radial-gradient(circle at 18% 23%, rgba(109, 213, 238, 0.32) 0 0.7px, transparent 0.9px),
+    radial-gradient(circle at 82% 74%, rgba(99, 136, 232, 0.24) 0 0.65px, transparent 0.85px);
+  background-size: 25px 25px, 31px 31px;
+  mask-image: linear-gradient(120deg, black 0%, transparent 38%, transparent 62%, black 100%);
+  -webkit-mask-image: linear-gradient(120deg, black 0%, transparent 38%, transparent 62%, black 100%);
+}
+
+.app-shell { z-index: 1; }
+header,
+.section,
+.team-card,
+.modal,
+.actions-menu-panel,
+.loading-content {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(14px) saturate(116%);
+  -webkit-backdrop-filter: blur(14px) saturate(116%);
+}
+header h1,
+.loading-logo {
+  background: linear-gradient(120deg, var(--accent), var(--text) 54%, var(--accent));
+  background-size: 180% 180%;
+}
+[data-theme="dark"] header,
+[data-theme="dark"] .section,
+[data-theme="dark"] .team-card,
+[data-theme="dark"] .modal,
+[data-theme="dark"] .actions-menu-panel,
+[data-theme="dark"] .loading-content {
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(172, 234, 255, 0.08);
+}
+[data-theme="dark"] header h1,
+[data-theme="dark"] .loading-logo {
+  background: linear-gradient(120deg, #6dd5ee, #e6f3fb 52%, #6d8fe8);
+  background-size: 180% 180%;
+}
+
+[data-theme="dark"] .starfield-grid { opacity: 0.92; }
+[data-theme="dark"] .loading-screen { background: #071321; animation: none; }
+[data-theme="dark"] .loading-bar-fill { background: linear-gradient(90deg, #6dd5ee, #6d8fe8); }
+:root:not([data-theme="dark"]) .loading-screen { background: var(--bg-gradient); }
+:root:not([data-theme="dark"]) .loading-bar-fill { background: linear-gradient(90deg, #e6c46a, #b8872f); }
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after { transition: none; }
+  header,
+  .section,
+  .team-card,
+  .modal,
+  .actions-menu-panel,
+  .loading-content {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
