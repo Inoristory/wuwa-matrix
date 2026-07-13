@@ -1,0 +1,35 @@
+name: Quality checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run project tests
+        run: npm test
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check js/script.js
+          node --check js/ui/theme.js
+          node --check js/background/themed-background.js
+          node --check js/specks.js
+
+      - name: Check whitespace errors
+        run: git diff --check

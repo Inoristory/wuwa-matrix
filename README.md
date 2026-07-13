@@ -87,10 +87,12 @@ wuwa-matrix/
 │   └── style.css              # 页面样式与响应式布局
 ├── js/
 │   ├── script.js              # 应用状态、渲染和事件编排
+│   ├── ui/theme.js            # 主题切换与偏好保存
+│   ├── background/            # 玄翎雀 × 重明鸟 Canvas 背景
 │   ├── core/storage.js        # localStorage 读写与数据迁移
 │   ├── data/loader.js         # 角色数据加载与校验
 │   ├── interaction/drag.js    # 拖拽初始化
-│   └── specks.js              # 背景星点动画
+│   └── specks.js              # 低数量漂浮羽毛粒子
 ├── data/
 │   ├── json/characters.json   # 角色数据源
 │   └── js/data.generated.js   # 自动生成的离线兜底数据
@@ -118,7 +120,7 @@ data/json/characters.json
 - 桌面端使用 HTML5 Drag API，移动端使用 Pointer Events。
 - 头像优先使用 CDN WebP，失败时自动隐藏或回退到本地资源。
 - 支持响应式布局、键盘访问和触摸操作。
-- 使用 Canvas 与粒子效果绘制背景，不影响核心功能使用。
+- 使用 Canvas 绘制双主题羽流，并用少量漂浮羽毛强化主题识别，不影响核心功能使用。
 
 ## 维护角色数据
 

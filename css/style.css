@@ -25,7 +25,7 @@
   --glow-four: rgba(168,85,247,0.25);
   --glow-beta: rgba(249,115,22,0.25);
   --glow-satellite: rgba(6,182,212,0.25);
-  --bg-gradient: linear-gradient(135deg, #f4f3ef 0%, #e0dfda 30%, #eae8e2 60%, #f4f3ef 100%);
+  --bg-gradient: linear-gradient(135deg, #f7f4ec 0%, #f4f0e5 48%, #e9edf0 100%);
   --bg-glass: rgba(255,255,255,0.40);
 
   --card-w: 88px;
@@ -124,24 +124,15 @@
 }
 
 
-@keyframes bg-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
 html { font-size: var(--html-fz); }
 body {
   font-family: "SF Pro Display", "SF Pro Text", "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
-  background: var(--bg-gradient);
-  background-size: 200% 200%;
+  background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   padding: var(--body-p);
   overflow-x: hidden;
-  transition: background 0.6s var(--ease-in-out), color 0.4s var(--ease-in-out);
-  background-attachment: fixed;
-  animation: none;
+  transition: color 0.4s var(--ease-in-out);
 }
 
 @property --glass-highlight {
@@ -1589,9 +1580,7 @@ body.content-hidden .modal {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-gradient);
-  background-size: 200% 200%;
-  animation: bg-shift 25s ease-in-out infinite;
+  background: var(--bg);
   transition: opacity 0.3s var(--ease-in-out);
 }
 [data-theme="dark"] .loading-screen {
@@ -1650,7 +1639,7 @@ body.content-hidden .modal {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: bg-shift 6s ease-in-out infinite;
+  animation: none;
   letter-spacing: 3px;
   line-height: 1.2;
 }
@@ -1709,8 +1698,6 @@ body.content-hidden .modal {
   .toast-item.removing { animation: none; }
   .theme-toggle:hover { transform: none; }
   .teams-empty .empty-icon, .pool-empty .empty-icon { animation: none; }
-  .particle-wave { display: none !important; }
-  .contour-lines { display: none !important; }
   .themed-background { display: none !important; }
   .loading-screen { background: var(--bg); animation: none; }
   .loading-content { animation: none; }
