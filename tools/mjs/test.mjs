@@ -27,6 +27,7 @@ if (!source.includes('function normalizeState') || !source.includes('document.cr
 if (source.includes('localStorage.getItem') || source.includes('localStorage.setItem')) fail('storage access is not centralized');
 if (!loaderSource.includes('WUWA_DATA_LOADER') || !storageSource.includes('WUWA_STORAGE') || !dragSource.includes('WUWA_DRAG')) fail('feature modules are missing');
 if (data.characters.find(ch => ch.id === 'sp_yangyang')?.rarity === 'beta') fail('formal character remains in beta group');
+if (data.characters[0]?.id !== 'suisui' || data.characters[1]?.id !== 'sp_yangyang') fail('current version phase order is incorrect');
 if (data.nanokaIds.sp_yangyang !== 70 || data.nanokaIds.suisui !== 71) fail('formal avatar ids are incorrect');
 
 const syntax = spawnSync(process.execPath, ['--check', fileURLToPath(scriptPath)], { encoding: 'utf8' });

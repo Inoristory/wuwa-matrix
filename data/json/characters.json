@@ -1,5 +1,7 @@
 {
   "characters": [
+    { "id":"suisui", "name":"穗穗", "element":"glacio" },
+    { "id":"sp_yangyang", "name":"秧秧·玄翎", "element":"havoc" },
     { "id":"luosela", "name":"洛瑟菈", "element":"glacio" },
     { "id":"lucy",    "name":"露西",   "element":"spectro" },
     { "id":"rebecca", "name":"丽贝卡",  "element":"electro" },
@@ -42,8 +44,6 @@
     { "id":"rover_aero",    "name":"漂泊者·气动", "element":"aero",    "rarity":"rover" },
     { "id":"rover_havoc",   "name":"漂泊者·湮灭", "element":"havoc",   "rarity":"rover" },
     { "id":"rover_electro", "name":"漂泊者·导电", "element":"electro", "rarity":"rover" },
-    { "id":"suisui", "name":"穗穗", "element":"glacio" },
-    { "id":"sp_yangyang", "name":"秧秧·玄翎", "element":"havoc" },
     { "id":"qingxiao", "name":"清宵", "element":"aero",    "rarity":"satellite" },
     { "id":"jingran",  "name":"景燃", "element":"fusion",  "rarity":"satellite" },
     { "id":"xin_yuehu","name":"心月狐", "element":"electro", "rarity":"satellite" },
