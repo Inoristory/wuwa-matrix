@@ -225,7 +225,7 @@ function createFilterBar(container, filterSet, onChange) {
 
 function getPoolEmptyMsg() {
   const ownedTotal = getOwnedCount();
-  if (ownedTotal === 0) return '暂无可用角色，请先点击「管理角色」添加你的角色。';
+  if (ownedTotal === 0) return '暂无显示角色，请先点击「管理角色」显示角色。';
   if (poolSearchQuery || poolFilterElement.size > 0) return '没有角色匹配当前搜索或筛选条件。';
   return '所有角色已使用完毕。';
 }
@@ -1069,7 +1069,7 @@ function updateStats() {
   }
   const remainingSum = Object.values(remaining).reduce((a, b) => a + b, 0);
   $DOM['stats-text'].textContent =
-    `拥有 ${totalOwned} 人 · 已分配 ${totalUsed} 个位置 · 剩余 ${remainingSum} 次使用`;
+    `显示 ${totalOwned} 人 · 已分配 ${totalUsed} 个位置 · 剩余 ${remainingSum} 次使用`;
 }
 
 // ==================== ACTIONS ====================
@@ -1320,7 +1320,7 @@ function closeModal(modalEl, returnFocusId) {
 function updateMgmtStatsUI() {
   const totalChars = ALL_CHARACTERS.filter(c => roverUtils.isMain(c.id)).length;
   const ownedCount = getOwnedCount();
-  $DOM['mgmt-modal-stats'].textContent = `已有${ownedCount} / ${totalChars}`;
+  $DOM['mgmt-modal-stats'].textContent = `已显示${ownedCount} / ${totalChars}`;
 }
 
 function updateGroupBtn(block) {
@@ -1441,7 +1441,7 @@ function openMgmt() {
 
     const btnSelAll = document.createElement('button');
     btnSelAll.className = 'btn-sel-all';
-    btnSelAll.textContent = '全选';
+    btnSelAll.textContent = '全部显示';
     btnSelAll.addEventListener('click', () => {
       for (const ch of chars) {
         if (!_ownedSet.has(ch.id)) state.owned.push(ch.id);
@@ -1453,7 +1453,7 @@ function openMgmt() {
 
     const btnSelNone = document.createElement('button');
     btnSelNone.className = 'btn-sel-none';
-    btnSelNone.textContent = '清空';
+    btnSelNone.textContent = '全部隐藏';
     btnSelNone.addEventListener('click', () => {
       const removeIds = new Set(chars.filter(ch => _ownedSet.has(ch.id)).map(ch => ch.id));
       for (const id of removeIds) removeCharFromAllTeams(id);
@@ -1475,7 +1475,7 @@ function openMgmt() {
       div.className = `char-mgmt-item-wrapper ${_ownedSet.has(ch.id) ? 'owned' : ''}`;
       div.tabIndex = 0;
       div.setAttribute('role', 'button');
-      div.setAttribute('aria-label', `切换 ${ch.name} 拥有状态`);
+      div.setAttribute('aria-label', `切换 ${ch.name} 显示状态`);
       div.dataset.charId = ch.id;
       const { iconHtml, name } = roverUtils.labelHtml(ch);
       div.innerHTML = `${iconHtml}<span>${escapeHtml(name)}</span>`;
@@ -1493,7 +1493,7 @@ function openMgmt() {
 
   function toggleMgmtItem(el) {
     if (!el) return;
-    toggleOwnership(el.dataset.charId, el);
+    toggleVisibility(el.dataset.charId, el);
     if (_mgmtCache) {
       const block = _mgmtCache.groupBlocks.find(b => b.items.some(it => it.el === el));
       if (block) updateGroupBtn(block);
@@ -1542,14 +1542,14 @@ function removeCharFromAllTeams(id) {
   }
 }
 
-function toggleOwnership(id, el) {
+function toggleVisibility(id, el) {
   const idx = state.owned.indexOf(id);
   if (idx === -1) {
     state.owned.push(id);
     if (el) el.classList.add('owned');
   } else {
     const inTeam = state.teams.some(t => t.some(si => si === id || (roverUtils.belongs(id) && roverUtils.belongs(si))));
-    if (inTeam && !confirm(`"${getCharName(id)}" 当前在编队中，确定要移出吗？`)) return;
+    if (inTeam && !confirm(`"${getCharName(id)}" 当前在编队中，隐藏后会将其移出，确定继续吗？`)) return;
     removeCharFromAllTeams(id);
     state.owned.splice(idx, 1);
     if (el) el.classList.remove('owned');
