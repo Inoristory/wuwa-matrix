@@ -1582,17 +1582,6 @@ body.content-hidden .modal {
 
 * { scrollbar-width: thin; scrollbar-color: var(--border-strong) var(--bg-2); }
 
-.starfield-grid {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  display: block;
-}
-
 .loading-screen {
   position: fixed;
   inset: 0;
@@ -1722,7 +1711,7 @@ body.content-hidden .modal {
   .teams-empty .empty-icon, .pool-empty .empty-icon { animation: none; }
   .particle-wave { display: none !important; }
   .contour-lines { display: none !important; }
-  .starfield-grid { display: none !important; }
+  .themed-background { display: none !important; }
   .loading-screen { background: var(--bg); animation: none; }
   .loading-content { animation: none; }
   .loading-bar-fill { animation: none; width: 60%; }
@@ -1937,6 +1926,7 @@ body::after {
   pointer-events: none;
   z-index: 0;
   transition: opacity 0.65s var(--ease-in-out), background 0.65s var(--ease-in-out);
+  will-change: opacity, background;
 }
 
 /* 重明鸟：暖白瓷面、晨曦日轮和极轻的羽纹颗粒。 */
@@ -1951,9 +1941,8 @@ body::before {
 body::after {
   opacity: 0.28;
   background-image:
-    radial-gradient(circle at 24% 18%, rgba(184, 135, 47, 0.18) 0 0.7px, transparent 0.9px),
-    radial-gradient(circle at 76% 68%, rgba(130, 149, 168, 0.16) 0 0.65px, transparent 0.85px);
-  background-size: 18px 18px, 23px 23px;
+    repeating-linear-gradient(118deg, rgba(184, 135, 47, 0.045) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(62deg, rgba(130, 149, 168, 0.035) 0 1px, transparent 1px 34px);
   mask-image: linear-gradient(135deg, transparent 0%, black 34%, black 74%, transparent 100%);
   -webkit-mask-image: linear-gradient(135deg, transparent 0%, black 34%, black 74%, transparent 100%);
 }
@@ -1974,13 +1963,23 @@ body::after {
 [data-theme="dark"] body::after {
   opacity: 0.36;
   background-image:
-    radial-gradient(circle at 18% 23%, rgba(109, 213, 238, 0.32) 0 0.7px, transparent 0.9px),
-    radial-gradient(circle at 82% 74%, rgba(99, 136, 232, 0.24) 0 0.65px, transparent 0.85px);
-  background-size: 25px 25px, 31px 31px;
+    repeating-linear-gradient(126deg, rgba(109, 213, 238, 0.055) 0 1px, transparent 1px 32px),
+    repeating-linear-gradient(48deg, rgba(99, 136, 232, 0.04) 0 1px, transparent 1px 42px);
   mask-image: linear-gradient(120deg, black 0%, transparent 38%, transparent 62%, black 100%);
   -webkit-mask-image: linear-gradient(120deg, black 0%, transparent 38%, transparent 62%, black 100%);
 }
 
+.themed-background {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.82;
+  mix-blend-mode: multiply;
+}
 .app-shell { z-index: 1; }
 header,
 .section,
@@ -2013,7 +2012,10 @@ header h1,
   background-size: 180% 180%;
 }
 
-[data-theme="dark"] .starfield-grid { opacity: 0.92; }
+[data-theme="dark"] .themed-background {
+  opacity: 0.76;
+  mix-blend-mode: screen;
+}
 [data-theme="dark"] .loading-screen { background: #071321; animation: none; }
 [data-theme="dark"] .loading-bar-fill { background: linear-gradient(90deg, #6dd5ee, #6d8fe8); }
 :root:not([data-theme="dark"]) .loading-screen { background: var(--bg-gradient); }

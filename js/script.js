@@ -1701,22 +1701,20 @@ function toggleTheme() {
   const next = isDark ? 'light' : 'dark';
   document.documentElement.dataset.theme = next === 'dark' ? 'dark' : '';
   writeStorage(THEME_KEY, next);
-  if (window._starfieldRestart) _starfieldRestart();
+  if (window._themedBackgroundRestart) _themedBackgroundRestart();
 }
 
-// ==================== STARFIELD GRID ====================
-function initStarfieldGrid() {
+// ==================== THEMED FEATHER BACKGROUND ====================
+function initThemedBackground() {
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
 
   const canvas = document.createElement('canvas');
-  canvas.className = 'starfield-grid';
+  canvas.className = 'themed-background';
   canvas.setAttribute('aria-hidden', 'true');
   document.body.prepend(canvas);
 
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const ctx = canvas.getContext('2d');
-  const bgCanvas = document.createElement('canvas');
-  const bgCtx = bgCanvas.getContext('2d');
   let cw = 0;
   let ch = 0;
   let rafId = null;
@@ -1729,26 +1727,36 @@ function initStarfieldGrid() {
 
   const themes = {
     light: {
-      base: '#f7f4ec',
-      glow: ['230, 196, 106', '205, 221, 226'],
-      line: 'rgba(184, 135, 47, 0.10)',
+      glow: ['230, 196, 106', '255, 240, 184'],
       wing: '184, 135, 47',
       wingHighlight: '255, 240, 184',
-      sparkle: '230, 196, 106',
-      grid: 72,
-      sparkleCount: 16,
-      particle: { max: 4, spawnMin: 110, spawnMax: 220 }
+      feather: {
+        max: 4,
+        spawnMin: 150,
+        spawnMax: 280,
+        directionX: 0.025,
+        directionY: -0.012,
+        sway: 0.045,
+        rotation: 0.0015,
+        sizeMin: 8,
+        sizeMax: 14
+      }
     },
     dark: {
-      base: '#071321',
       glow: ['29, 93, 134', '109, 213, 238'],
-      line: 'rgba(77, 139, 169, 0.12)',
       wing: '55, 132, 171',
       wingHighlight: '109, 213, 238',
-      sparkle: '109, 213, 238',
-      grid: 68,
-      sparkleCount: 24,
-      particle: { max: 8, spawnMin: 72, spawnMax: 160 }
+      feather: {
+        max: 6,
+        spawnMin: 105,
+        spawnMax: 220,
+        directionX: -0.035,
+        directionY: 0.018,
+        sway: 0.032,
+        rotation: -0.0018,
+        sizeMin: 8,
+        sizeMax: 15
+      }
     }
   };
 
@@ -1776,119 +1784,45 @@ function initStarfieldGrid() {
     target.restore();
   }
 
-  function drawLightWings(target, theme, time, animated) {
-    const pulse = animated ? Math.sin(time * 0.18) * 0.018 : 0;
-    for (let side = -1; side <= 1; side += 2) {
-      for (let i = 0; i < 10; i++) {
-        const t = i / 9;
-        const startX = cw * 0.5 + side * (i * 3);
-        const startY = ch * 0.055 + i * 2;
-        const endX = side < 0 ? cw * (0.04 + t * 0.34) : cw * (0.96 - t * 0.34);
-        const endY = ch * (0.18 + t * 0.28);
-        const bend = side * cw * (0.18 + t * 0.05);
-        const alpha = 0.045 + t * 0.055 + pulse;
-        const wingColor = i % 4 === 0 ? theme.wingHighlight : theme.wing;
-        drawCurve(target, [startX, startY, startX + bend, ch * (0.04 + t * 0.03), endX - bend * 0.18, endY - ch * 0.10, endX, endY], wingColor, 0.8 + t * 0.5, alpha);
-      }
-    }
-  }
-
-  function drawDarkWings(target, theme, time, animated) {
-    const drift = animated ? Math.sin(time * 0.12) * 18 : 0;
+  function drawLightPlumes(target, theme, time, animated) {
+    const breath = animated ? Math.sin(time * 0.16) * 0.012 : 0;
     for (let side = -1; side <= 1; side += 2) {
       for (let i = 0; i < 9; i++) {
         const t = i / 8;
-        const startX = side < 0 ? -cw * 0.06 : cw * 1.06;
-        const startY = ch * (0.18 + t * 0.10) + drift * side * 0.12;
-        const endX = side < 0 ? cw * (0.34 + t * 0.07) : cw * (0.66 - t * 0.07);
-        const endY = ch * (0.42 + t * 0.20);
-        const bend = side * cw * (0.22 + t * 0.04);
-        const alpha = 0.045 + (1 - t) * 0.055;
-        const wingColor = i % 4 === 0 ? theme.wingHighlight : theme.wing;
-        drawCurve(target, [startX, startY, startX + bend, startY - ch * 0.07, endX - bend * 0.28, endY + ch * 0.05, endX, endY], wingColor, 0.8 + (1 - t) * 0.7, alpha);
+        const startX = cw * 0.5 + side * (i * 4);
+        const startY = ch * 0.055 + i * 2;
+        const endX = side < 0 ? cw * (0.04 + t * 0.34) : cw * (0.96 - t * 0.34);
+        const endY = ch * (0.19 + t * 0.30);
+        const bend = side * cw * (0.18 + t * 0.05);
+        const alpha = 0.028 + t * 0.038 + breath;
+        const color = i % 4 === 0 ? theme.wingHighlight : theme.wing;
+        drawCurve(target, [startX, startY, startX + bend, ch * (0.035 + t * 0.03), endX - bend * 0.18, endY - ch * 0.10, endX, endY], color, 0.8 + t * 0.45, alpha);
       }
     }
   }
 
-  function drawGrid(target, theme) {
-    target.save();
-    target.strokeStyle = theme.line;
-    target.lineWidth = 0.5;
-    target.beginPath();
-    for (let x = 0; x <= cw; x += theme.grid) {
-      target.moveTo(x, 0);
-      target.lineTo(x, ch);
+  function drawDarkPlumes(target, theme, time, animated) {
+    const drift = animated ? Math.sin(time * 0.10) * 16 : 0;
+    for (let side = -1; side <= 1; side += 2) {
+      for (let i = 0; i < 8; i++) {
+        const t = i / 7;
+        const startX = side < 0 ? -cw * 0.08 : cw * 1.08;
+        const startY = ch * (0.16 + t * 0.12) + drift * side * 0.10;
+        const endX = side < 0 ? cw * (0.34 + t * 0.075) : cw * (0.66 - t * 0.075);
+        const endY = ch * (0.40 + t * 0.22);
+        const bend = side * cw * (0.22 + t * 0.04);
+        const alpha = 0.026 + (1 - t) * 0.040;
+        const color = i % 4 === 0 ? theme.wingHighlight : theme.wing;
+        drawCurve(target, [startX, startY, startX + bend, startY - ch * 0.08, endX - bend * 0.28, endY + ch * 0.05, endX, endY], color, 0.8 + (1 - t) * 0.55, alpha);
+      }
     }
-    for (let y = 0; y <= ch; y += theme.grid) {
-      target.moveTo(0, y);
-      target.lineTo(cw, y);
-    }
-    target.stroke();
-    target.restore();
   }
 
-  function renderBg() {
+  function renderFrame(time, animated) {
     const theme = getTheme();
-    bgCanvas.width = cw * dpr;
-    bgCanvas.height = ch * dpr;
-    bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    bgCtx.clearRect(0, 0, cw, ch);
-    bgCtx.fillStyle = theme.base;
-    bgCtx.fillRect(0, 0, cw, ch);
-
-    const topGlow = bgCtx.createRadialGradient(cw * 0.5, ch * 0.02, 0, cw * 0.5, ch * 0.02, Math.max(cw, ch) * 0.78);
-    topGlow.addColorStop(0, rgba(theme.glow[0], getThemeName() === 'light' ? 0.20 : 0.15));
-    topGlow.addColorStop(0.45, rgba(theme.glow[0], 0.055));
-    topGlow.addColorStop(1, rgba(theme.glow[0], 0));
-    bgCtx.fillStyle = topGlow;
-    bgCtx.fillRect(0, 0, cw, ch);
-
-    const edgeGlow = bgCtx.createRadialGradient(cw * 0.92, ch * 0.88, 0, cw * 0.92, ch * 0.88, Math.max(cw, ch) * 0.66);
-    edgeGlow.addColorStop(0, rgba(theme.glow[1], getThemeName() === 'light' ? 0.10 : 0.13));
-    edgeGlow.addColorStop(1, rgba(theme.glow[1], 0));
-    bgCtx.fillStyle = edgeGlow;
-    bgCtx.fillRect(0, 0, cw, ch);
-
-    drawGrid(bgCtx, theme);
-    if (getThemeName() === 'light') drawLightWings(bgCtx, theme, 0, false);
-    else drawDarkWings(bgCtx, theme, 0, false);
-  }
-
-  const sparkles = [];
-  function resetSparkles() {
-    const theme = getTheme();
-    sparkles.length = 0;
-    const cols = Math.max(1, Math.floor(cw / theme.grid));
-    const rows = Math.max(1, Math.floor(ch / theme.grid));
-    for (let i = 0; i < theme.sparkleCount; i++) {
-      sparkles.push({
-        x: Math.floor(Math.random() * cols) * theme.grid,
-        y: Math.floor(Math.random() * rows) * theme.grid,
-        phase: Math.random() * Math.PI * 2,
-        speed: 0.18 + Math.random() * 0.42,
-        size: 1.2 + Math.random() * 1.8
-      });
-    }
-  }
-
-  function drawSparkles(target, time, theme) {
-    target.save();
-    target.globalCompositeOperation = 'lighter';
-    for (let i = 0; i < sparkles.length; i++) {
-      const star = sparkles[i];
-      const pulse = (Math.sin(time * star.speed + star.phase) + 1) / 2;
-      const alpha = 0.10 + pulse * 0.28;
-      const size = star.size * (0.65 + pulse * 0.55);
-      target.fillStyle = rgba(theme.sparkle, alpha);
-      target.beginPath();
-      target.moveTo(star.x, star.y - size);
-      target.lineTo(star.x + size * 0.55, star.y);
-      target.lineTo(star.x, star.y + size);
-      target.lineTo(star.x - size * 0.55, star.y);
-      target.closePath();
-      target.fill();
-    }
-    target.restore();
+    ctx.clearRect(0, 0, cw, ch);
+    if (getThemeName() === 'light') drawLightPlumes(ctx, theme, time, animated);
+    else drawDarkPlumes(ctx, theme, time, animated);
   }
 
   function resize() {
@@ -1899,14 +1833,12 @@ function initStarfieldGrid() {
     canvas.style.width = cw + 'px';
     canvas.style.height = ch + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    renderBg();
-    resetSparkles();
-    window._backgroundParticleConfig = getTheme().particle;
-    window._backgroundThemePalette = {
-      trail: getThemeName() === 'light' ? '230, 196, 106' : '109, 213, 238',
-      core: getThemeName() === 'light' ? '230, 196, 106' : '109, 213, 238',
-      halo: getThemeName() === 'light' ? '184, 135, 47' : '55, 132, 171'
-    };
+    renderFrame(0, false);
+    const theme = getTheme();
+    window._backgroundParticleConfig = theme.feather;
+    window._backgroundThemePalette = getThemeName() === 'light'
+      ? { feather: '230, 196, 106', featherHighlight: '255, 240, 184', featherGlow: '184, 135, 47' }
+      : { feather: '55, 132, 171', featherHighlight: '109, 213, 238', featherGlow: '29, 93, 134' };
   }
 
   function draw(time) {
@@ -1917,15 +1849,11 @@ function initStarfieldGrid() {
     }
     lastFrameTime = time;
     if (!startTime) startTime = time;
-    const elapsed = (time - startTime) / 1000;
-    const theme = getTheme();
-
-    ctx.clearRect(0, 0, cw, ch);
-    ctx.drawImage(bgCanvas, 0, 0, cw, ch);
-    if (getThemeName() === 'light') drawLightWings(ctx, theme, elapsed, true);
-    else drawDarkWings(ctx, theme, elapsed, true);
-    drawSparkles(ctx, elapsed, theme);
-    if (window._specks) { _specks.update(cw, ch); _specks.draw(ctx); }
+    renderFrame((time - startTime) / 1000, true);
+    if (window._specks) {
+      _specks.update(cw, ch);
+      _specks.draw(ctx);
+    }
     rafId = requestAnimationFrame(draw);
   }
 
@@ -1942,7 +1870,10 @@ function initStarfieldGrid() {
 
   function stop() {
     running = false;
-    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
     canvas.style.display = 'none';
   }
 
@@ -1950,7 +1881,10 @@ function initStarfieldGrid() {
     if (!running) return;
     if (document.hidden) {
       hidden = true;
-      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
     } else {
       hidden = false;
       startTime = 0;
@@ -1960,20 +1894,24 @@ function initStarfieldGrid() {
   }
 
   document.addEventListener('visibilitychange', onVisibilityChange);
-  window._starfieldRestart = function() {
+  window._themedBackgroundRestart = function() {
     stop();
     resize();
     start();
   };
-  window._starfieldCleanup = function() {
+  window._themedBackgroundCleanup = function() {
     stop();
     document.removeEventListener('visibilitychange', onVisibilityChange);
     window.removeEventListener('resize', onResize);
-    delete window._starfieldCleanup;
+    delete window._themedBackgroundCleanup;
+    delete window._themedBackgroundRestart;
   };
   function onResize() {
     if (resizeRaf) cancelAnimationFrame(resizeRaf);
-    resizeRaf = requestAnimationFrame(() => { resizeRaf = null; resize(); });
+    resizeRaf = requestAnimationFrame(() => {
+      resizeRaf = null;
+      resize();
+    });
   }
   window.addEventListener('resize', onResize);
 
@@ -2602,7 +2540,7 @@ function startApp() {
 }
 
 initTheme();
-try { initStarfieldGrid(); } catch(e) { console.warn('[wuwa] starfield init error', e); }
+try { initThemedBackground(); } catch(e) { console.warn('[wuwa] themed background init error', e); }
 
 loadCharacterData().then(() => {
   buildDerivedData();

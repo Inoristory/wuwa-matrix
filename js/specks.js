@@ -1,14 +1,21 @@
-﻿(function() {
-  var FALLBACK_CONFIG = { max: 4, spawnMin: 110, spawnMax: 220 };
-  var FALLBACK_PALETTE = {
-    trail: '230, 196, 106',
-    core: '230, 196, 106',
-    halo: '184, 135, 47'
+(function() {
+  var FALLBACK_CONFIG = {
+    max: 4,
+    spawnMin: 150,
+    spawnMax: 280,
+    directionX: 0.025,
+    directionY: -0.012,
+    sway: 0.045,
+    rotation: 0.0015,
+    sizeMin: 8,
+    sizeMax: 14
   };
-  var ACCEL_FRAMES = 42;
-  var DECEL_FRAMES = 18;
-  var SHRINK_FRAMES = 48;
-  var TRAIL_MAX_AGE = 150;
+  var FALLBACK_PALETTE = {
+    feather: '230, 196, 106',
+    featherHighlight: '255, 240, 184',
+    featherGlow: '184, 135, 47'
+  };
+  var MAX_LIFE = 760;
 
   function getConfig() {
     return window._backgroundParticleConfig || FALLBACK_CONFIG;
@@ -22,156 +29,130 @@
     return 'rgba(' + rgb + ', ' + alpha + ')';
   }
 
-  function Speck(cw, ch) {
-    this.x = cw * 0.62 + Math.random() * (cw * 0.34);
-    this.y = 10 + Math.random() * Math.max(40, ch * 0.42);
-    this.peakVx = -(7 + Math.random() * 4);
-    this.driftVx = -(0.09 + Math.random() * 0.10);
-    var angle = (15 + Math.random() * 7) * Math.PI / 180;
-    var tanA = Math.tan(angle);
-    this.peakVy = -this.peakVx * tanA;
-    this.driftVy = -this.driftVx * tanA;
-    this.gravity = 0.00015 + Math.random() * 0.00025;
-    this.targetSize = 5 + Math.random() * 6;
-    this.size = 0;
-    this.opacity = 0;
-    this.lineWidth = 1.2 + Math.random() * 1.0;
-    this.alive = true;
-    this.frame = 0;
-    this.lifeStart = 0;
-    this.shrinking = false;
-    this.trail = [];
+  function Feather(cw, ch) {
+    this.reset(cw, ch, true);
   }
 
-  Speck.prototype.update = function(cw, ch) {
-    if (!this.alive) return;
-    this.frame++;
+  Feather.prototype.reset = function(cw, ch, initial) {
+    var config = getConfig();
+    var directionX = Number(config.directionX) || 0;
+    var directionY = Number(config.directionY) || 0;
+    var sizeMin = Number(config.sizeMin) || 8;
+    var sizeMax = Number(config.sizeMax) || sizeMin + 4;
 
-    var growFrames = ACCEL_FRAMES + 12;
-    if (this.frame <= growFrames) {
-      this.size = this.targetSize * (this.frame / growFrames);
-      this.opacity = 0.72 * (this.frame / growFrames);
-    } else if (!this.shrinking) {
-      this.size = this.targetSize;
-      this.opacity = 0.72;
-      var shrinkStart = ACCEL_FRAMES + DECEL_FRAMES + 80 + Math.random() * 240;
-      if (this.frame >= shrinkStart) {
-        this.shrinking = true;
-        this.lifeStart = this.frame;
-      }
-    }
-
-    if (this.shrinking) {
-      var sf = this.frame - this.lifeStart;
-      var t = Math.min(sf / SHRINK_FRAMES, 1);
-      this.size = this.targetSize * (1 - t);
-      this.opacity = 0.72 * (1 - t);
-      if (t >= 1) { this.alive = false; return; }
-    }
-
-    if (this.frame <= ACCEL_FRAMES) {
-      var at = this.frame / ACCEL_FRAMES;
-      this.vx = this.peakVx * at;
-      this.vy = this.peakVy * at;
-    } else if (this.frame <= ACCEL_FRAMES + DECEL_FRAMES) {
-      var dt = (this.frame - ACCEL_FRAMES) / DECEL_FRAMES;
-      this.vx = this.peakVx * (1 - dt) + this.driftVx * dt;
-      this.vy = this.peakVy * (1 - dt) + this.driftVy * dt;
-    } else {
-      this.vx = this.driftVx;
-      this.vy = this.driftVy;
-    }
-
-    this.vy += this.gravity;
-    this.x += this.vx;
-    this.y += this.vy;
-
-    var emitEnd = ACCEL_FRAMES + DECEL_FRAMES;
-    if (this.frame <= emitEnd) {
-      this.trail.push({
-        x: this.x,
-        y: this.y,
-        w: (this.lineWidth * 0.7) * (this.size / this.targetSize),
-        born: this.frame
-      });
-    }
-    while (this.trail.length > 0 && this.frame - this.trail[0].born > TRAIL_MAX_AGE) {
-      this.trail.shift();
-    }
-    if (this.x < -40 || this.y > ch + 40) this.alive = false;
+    this.size = sizeMin + Math.random() * Math.max(1, sizeMax - sizeMin);
+    this.x = initial
+      ? Math.random() * cw
+      : (directionX < 0 ? cw + this.size * 2 : -this.size * 2);
+    this.y = initial
+      ? ch * (0.14 + Math.random() * 0.68)
+      : (directionY > 0 ? -this.size * 2 : ch + this.size * 2);
+    this.vx = directionX * (0.72 + Math.random() * 0.58);
+    this.vy = directionY * (0.72 + Math.random() * 0.58);
+    this.phase = Math.random() * Math.PI * 2;
+    this.phaseSpeed = 0.014 + Math.random() * 0.010;
+    this.rotation = Math.random() * Math.PI * 2;
+    this.rotationSpeed = (Number(config.rotation) || 0.0015) * (0.72 + Math.random() * 0.58);
+    this.sway = Number(config.sway) || 0.04;
+    this.opacity = 0;
+    this.age = initial ? Math.floor(Math.random() * 240) : 0;
+    this.life = MAX_LIFE + Math.floor(Math.random() * 180);
   };
 
-  Speck.prototype.draw = function(ctx) {
-    if (!this.alive || this.size < 0.5) return;
-    var palette = getPalette();
-    var trailLen = this.trail.length;
+  Feather.prototype.update = function(cw, ch) {
+    this.age++;
+    var config = getConfig();
+    var sway = Math.sin(this.phase + this.age * this.phaseSpeed) * this.sway;
+    this.x += this.vx + sway;
+    this.y += this.vy + Math.cos(this.phase + this.age * this.phaseSpeed) * this.sway * 0.45;
+    this.rotation += this.rotationSpeed;
 
-    if (trailLen > 1) {
-      ctx.save();
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      var now = this.frame;
-      for (var i = 1; i < trailLen; i++) {
-        var p0 = this.trail[i - 1];
-        var age = now - p0.born;
-        var alpha = age < 42 ? 0.28 : 0.28 * (1 - (age - 42) / TRAIL_MAX_AGE);
-        if (alpha < 0.008) continue;
-        ctx.strokeStyle = rgba(palette.trail, alpha);
-        ctx.lineWidth = p0.w;
-        ctx.beginPath();
-        ctx.moveTo(p0.x, p0.y);
-        ctx.lineTo(this.trail[i].x, this.trail[i].y);
-        ctx.stroke();
-      }
-      ctx.restore();
+    var fadeIn = Math.min(this.age / 70, 1);
+    var fadeOut = Math.min((this.life - this.age) / 100, 1);
+    this.opacity = Math.max(0, Math.min(fadeIn, fadeOut)) * 0.48;
+
+    if (
+      this.age >= this.life ||
+      this.x < -this.size * 3 ||
+      this.x > cw + this.size * 3 ||
+      this.y < -this.size * 3 ||
+      this.y > ch + this.size * 3
+    ) {
+      this.reset(cw, ch, false);
     }
+  };
+
+  Feather.prototype.draw = function(ctx) {
+    if (this.opacity < 0.01) return;
+    var palette = getPalette();
+    var s = this.size;
 
     ctx.save();
     ctx.translate(this.x, this.y);
-    var s = this.size;
-    var grad = ctx.createRadialGradient(0, 0, 0, 0, 0, s);
-    grad.addColorStop(0, rgba(palette.core, 0.82));
-    grad.addColorStop(0.34, rgba(palette.core, 0.52));
-    grad.addColorStop(0.68, rgba(palette.halo, 0.20));
-    grad.addColorStop(1, rgba(palette.halo, 0));
-    ctx.shadowBlur = s * 0.72;
-    ctx.shadowColor = rgba(palette.halo, 0.34);
-    ctx.fillStyle = grad;
+    ctx.rotate(this.rotation);
+    ctx.globalAlpha = this.opacity;
+    ctx.shadowBlur = s * 0.8;
+    ctx.shadowColor = rgba(palette.featherGlow, 0.24);
+
+    var fill = ctx.createLinearGradient(-s, 0, s, 0);
+    fill.addColorStop(0, rgba(palette.featherGlow, 0.12));
+    fill.addColorStop(0.48, rgba(palette.feather, 0.55));
+    fill.addColorStop(1, rgba(palette.featherHighlight, 0.72));
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = rgba(palette.featherHighlight, 0.48);
+    ctx.lineWidth = 0.65;
+
     ctx.beginPath();
     ctx.moveTo(0, -s);
-    ctx.lineTo(s * 0.25, -s * 0.25);
-    ctx.lineTo(s, 0);
-    ctx.lineTo(s * 0.25, s * 0.25);
-    ctx.lineTo(0, s);
-    ctx.lineTo(-s * 0.25, s * 0.25);
-    ctx.lineTo(-s, 0);
-    ctx.lineTo(-s * 0.25, -s * 0.25);
+    ctx.bezierCurveTo(s * 0.52, -s * 0.72, s * 0.78, -s * 0.18, s * 0.10, s * 0.90);
+    ctx.bezierCurveTo(-s * 0.18, s * 0.58, -s * 0.62, s * 0.18, 0, -s);
     ctx.closePath();
     ctx.fill();
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = rgba(palette.featherHighlight, 0.62);
+    ctx.lineWidth = 0.55;
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.04, -s * 0.86);
+    ctx.quadraticCurveTo(-s * 0.02, 0, s * 0.04, s * 0.84);
+    ctx.stroke();
+
+    for (var i = 0; i < 4; i++) {
+      var y = -s * 0.52 + i * s * 0.28;
+      var spread = s * (0.25 + i * 0.07);
+      ctx.strokeStyle = rgba(palette.featherHighlight, 0.26);
+      ctx.beginPath();
+      ctx.moveTo(-s * 0.02, y);
+      ctx.lineTo(-spread, y - s * 0.10);
+      ctx.moveTo(s * 0.01, y + s * 0.02);
+      ctx.lineTo(spread * 0.72, y - s * 0.08);
+      ctx.stroke();
+    }
     ctx.restore();
   };
 
-  var specks = [];
-  var timeToSpawn = 40;
+  var feathers = [];
+  var timeToSpawn = 45;
 
   function update(cw, ch) {
     var config = getConfig();
+    var max = Math.max(0, Number(config.max) || 0);
+    while (feathers.length > max) feathers.pop();
+
     timeToSpawn--;
     if (timeToSpawn <= 0) {
-      if (specks.length < config.max) specks.push(new Speck(cw, ch));
-      timeToSpawn = config.spawnMin + Math.random() * (config.spawnMax - config.spawnMin);
+      if (feathers.length < max) feathers.push(new Feather(cw, ch));
+      timeToSpawn = Number(config.spawnMin) + Math.random() * Math.max(1, Number(config.spawnMax) - Number(config.spawnMin));
     }
-    for (var i = specks.length - 1; i >= 0; i--) {
-      specks[i].update(cw, ch);
-      if (!specks[i].alive) {
-        specks[i] = specks[specks.length - 1];
-        specks.pop();
-      }
+
+    for (var i = feathers.length - 1; i >= 0; i--) {
+      feathers[i].update(cw, ch);
     }
   }
 
   function draw(ctx) {
-    for (var i = 0; i < specks.length; i++) specks[i].draw(ctx);
+    for (var i = 0; i < feathers.length; i++) feathers[i].draw(ctx);
   }
 
   window._specks = { update: update, draw: draw };
