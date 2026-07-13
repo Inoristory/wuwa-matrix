@@ -1997,6 +1997,9 @@ header h1,
 .loading-logo {
   background: linear-gradient(120deg, var(--accent), var(--text) 54%, var(--accent));
   background-size: 180% 180%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 [data-theme="dark"] header,
 [data-theme="dark"] .section,
@@ -2010,6 +2013,9 @@ header h1,
 [data-theme="dark"] .loading-logo {
   background: linear-gradient(120deg, #6dd5ee, #e6f3fb 52%, #6d8fe8);
   background-size: 180% 180%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 [data-theme="dark"] .themed-background {
