@@ -94,6 +94,7 @@ let NAME_TO_PINYIN;
 
 // --- 游戏规则常量 ---
 const MAX_PER_TEAM = 3;
+const CURRENT_VERSION_CHARACTER_IDS = new Set(['suisui', 'sp_yangyang']);
 const MIN_USES = 1;
 const MAX_USES = 3;
 const COLLAPSED_DEFAULT = ['beta', 'satellite'];
@@ -763,7 +764,12 @@ function buildCharCardEl(ch, opts) {
 }
 
 function createPoolCard(ch, remaining) {
-  return buildCharCardEl(ch, { uses: remaining });
+  const card = buildCharCardEl(ch, { uses: remaining });
+  if (CURRENT_VERSION_CHARACTER_IDS.has(ch.id)) {
+    card.classList.add('is-current-version');
+    card.insertAdjacentHTML('afterbegin', '<span class="char-new-badge" role="img" aria-label="当期新角色">NEW</span>');
+  }
+  return card;
 }
 
 // ----- Pool Incremental Update -----

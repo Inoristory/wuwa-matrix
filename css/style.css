@@ -2498,3 +2498,61 @@ header h1,
     transform: none;
   }
 }
+
+
+/* current-version badge and team glow correction */
+.char-new-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 25px;
+  height: 15px;
+  padding: 0 5px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 5px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 0.48rem;
+  font-weight: 850;
+  letter-spacing: 0.7px;
+  line-height: 1;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--accent) 28%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 28%, transparent);
+  pointer-events: none;
+}
+.char-card.is-current-version {
+  border-top-color: color-mix(in srgb, var(--accent) 58%, var(--elem-color));
+}
+.team-slot-item {
+  overflow: visible;
+}
+.team-slot-item .char-card {
+  overflow: visible;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--elem-color) 12%, var(--border)), 0 4px 12px color-mix(in srgb, var(--text) 10%, transparent);
+}
+.team-slot-item .char-card:hover {
+  background: color-mix(in srgb, var(--elem-color) 8%, var(--surface2));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--elem-color) 52%, transparent), 0 0 18px color-mix(in srgb, var(--elem-color) 22%, transparent);
+  transform: none;
+}
+.team-slot-item .char-card:hover .char-icon-img {
+  transform: scale(1.035);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--elem-color) 38%, transparent), 0 0 16px color-mix(in srgb, var(--elem-color) 32%, transparent);
+}
+.team-slot-item:has(.char-card:hover) {
+  border-color: color-mix(in srgb, var(--elem-color) 72%, var(--border-strong));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--elem-color) 18%, transparent), 0 0 16px color-mix(in srgb, var(--elem-color) 14%, transparent);
+}
+@media (max-width: 560px) {
+  .char-new-badge {
+    top: 4px;
+    left: 4px;
+    min-width: 22px;
+    height: 13px;
+    padding-inline: 4px;
+    font-size: 0.42rem;
+  }
+}
