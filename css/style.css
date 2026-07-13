@@ -2234,3 +2234,267 @@ header h1 {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* v1.2 visual refresh */
+:root {
+  --ui-panel-glow: color-mix(in srgb, var(--accent) 10%, transparent);
+  --ui-panel-shadow: 0 18px 50px color-mix(in srgb, var(--text) 8%, transparent);
+  --ui-border-soft: color-mix(in srgb, var(--border) 82%, transparent);
+}
+body {
+  font-feature-settings: "tnum" 1, "cv11" 1;
+  text-rendering: optimizeLegibility;
+}
+.app-shell {
+  max-width: 1480px;
+  margin: 0 auto;
+}
+header {
+  background:
+    linear-gradient(120deg, color-mix(in srgb, var(--accent) 8%, transparent), transparent 38%),
+    var(--surface);
+  border-color: var(--ui-border-soft);
+  box-shadow: var(--ui-panel-shadow), inset 0 1px 0 color-mix(in srgb, #fff 30%, transparent);
+  backdrop-filter: blur(22px) saturate(135%);
+  -webkit-backdrop-filter: blur(22px) saturate(135%);
+}
+header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, transparent 0 18%, color-mix(in srgb, var(--accent) 8%, transparent) 18.2%, transparent 18.5% 100%),
+    linear-gradient(180deg, color-mix(in srgb, #fff 12%, transparent), transparent 36%);
+  pointer-events: none;
+  opacity: 0.65;
+}
+header h1,
+.header-actions {
+  position: relative;
+  z-index: 2;
+}
+.header-actions .btn,
+.theme-toggle,
+.actions-menu-trigger {
+  min-height: 34px;
+  border-radius: 10px;
+  border-color: var(--ui-border-soft);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 14%, transparent);
+}
+.header-actions .btn:hover,
+.theme-toggle:hover,
+.actions-menu-trigger:hover,
+.actions-menu[open] .actions-menu-trigger {
+  box-shadow: 0 8px 22px var(--ui-panel-glow), inset 0 1px 0 color-mix(in srgb, #fff 20%, transparent);
+}
+.actions-menu-panel {
+  border-radius: 12px;
+  padding: 7px;
+  background: color-mix(in srgb, var(--surface) 90%, var(--bg));
+  box-shadow: 0 20px 44px color-mix(in srgb, var(--text) 18%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 18%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+.container {
+  position: relative;
+}
+.section {
+  position: relative;
+  overflow: visible;
+  border-color: var(--ui-border-soft);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, #fff 8%, transparent), transparent 30%),
+    var(--surface);
+  box-shadow: var(--ui-panel-shadow), inset 0 1px 0 color-mix(in srgb, #fff 18%, transparent);
+  backdrop-filter: blur(18px) saturate(126%);
+  -webkit-backdrop-filter: blur(18px) saturate(126%);
+}
+.section::before {
+  content: '';
+  position: absolute;
+  inset: 0 14px auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 62%, transparent), transparent);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.section-header {
+  position: relative;
+  border-bottom-color: var(--ui-border-soft);
+}
+.section-title {
+  border-left: 0;
+  padding-left: 0;
+  gap: 9px;
+  text-transform: none;
+}
+.section-title::before {
+  content: '';
+  width: 8px;
+  height: 20px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 22%, transparent));
+  box-shadow: 0 0 16px var(--ui-panel-glow);
+}
+#pool-count,
+#teams-count {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 25%, var(--border));
+  color: var(--accent);
+  font-weight: 650;
+}
+.pool-hint {
+  padding-left: 17px;
+  letter-spacing: 0.15px;
+}
+.pool-filter-bar {
+  padding: 7px;
+  border: 1px solid var(--ui-border-soft);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--bg) 18%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 12%, transparent);
+}
+.pool-search {
+  min-height: 38px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 72%, var(--bg));
+  border-color: transparent;
+}
+.pool-search:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+.filter-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+.group-block {
+  border-color: var(--ui-border-soft);
+  background: color-mix(in srgb, var(--surface2) 76%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent);
+}
+.group-label {
+  border-bottom-color: var(--ui-border-soft);
+  background: transparent;
+  border-radius: 9px 9px 0 0;
+}
+.group-label:hover {
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+.char-card {
+  border-radius: 12px;
+  border-color: var(--ui-border-soft);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--text) 7%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 12%, transparent);
+  overflow: hidden;
+}
+.char-card::before {
+  opacity: 0.08;
+}
+.char-card::after {
+  opacity: 0.05;
+}
+.char-card:hover {
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--text) 13%, transparent), 0 0 25px color-mix(in srgb, var(--elem-color) 20%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 20%, transparent);
+  transform: translateY(-5px) scale(1.025);
+}
+.char-card .char-icon-img,
+.char-card .char-placeholder {
+  box-shadow: 0 5px 16px color-mix(in srgb, var(--text) 12%, transparent);
+}
+.char-card .char-name {
+  font-weight: 650;
+  letter-spacing: 0.1px;
+}
+.team-card {
+  border-left: 0;
+  border-top: 3px solid var(--team-elem, var(--accent));
+  border-color: var(--ui-border-soft);
+  border-top-color: var(--team-elem, var(--accent));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--team-elem, var(--accent)) 7%, transparent), transparent 36%),
+    var(--surface);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--text) 8%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 14%, transparent);
+}
+.team-card:hover {
+  box-shadow: 0 16px 32px color-mix(in srgb, var(--text) 14%, transparent), 0 0 22px color-mix(in srgb, var(--team-elem, var(--accent)) 12%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 18%, transparent);
+}
+.team-header {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ui-border-soft);
+}
+.team-header .team-label .badge {
+  border: 1px solid var(--ui-border-soft);
+  border-radius: 999px;
+}
+.team-drag-handle,
+.team-header .team-lock,
+.team-header .team-del {
+  border-radius: 9px;
+}
+.team-slots {
+  padding-top: 3px;
+}
+.team-slot-item {
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--surface2) 82%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent);
+}
+.team-slot-item:has(.char-card) {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+.add-team-btn {
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+  color: var(--accent);
+  letter-spacing: 0.3px;
+  font-weight: 650;
+}
+.add-team-btn:hover {
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  box-shadow: 0 12px 24px var(--ui-panel-glow);
+}
+.modal,
+.loading-content {
+  border-radius: 16px;
+  border-color: var(--ui-border-soft);
+  box-shadow: 0 26px 70px color-mix(in srgb, var(--text) 22%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 18%, transparent);
+  backdrop-filter: blur(22px) saturate(135%);
+  -webkit-backdrop-filter: blur(22px) saturate(135%);
+}
+.modal-overlay.active {
+  backdrop-filter: blur(10px) saturate(110%);
+  -webkit-backdrop-filter: blur(10px) saturate(110%);
+}
+.mgmt-toolbar,
+.mgmt-group-header {
+  border-color: var(--ui-border-soft);
+}
+.char-mgmt-item-wrapper {
+  border-radius: 10px;
+  border-color: var(--ui-border-soft);
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+}
+.char-mgmt-item-wrapper.owned {
+  box-shadow: 0 8px 18px var(--ui-panel-glow), inset 0 1px 0 color-mix(in srgb, #fff 15%, transparent);
+}
+
+@media (max-width: 800px) {
+  .section {
+    box-shadow: 0 12px 30px color-mix(in srgb, var(--text) 8%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 16%, transparent);
+  }
+  .char-card:hover {
+    transform: translateY(-3px) scale(1.015);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .char-card:hover,
+  .team-card:hover,
+  .add-team-btn:hover {
+    transform: none;
+  }
+}
