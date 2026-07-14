@@ -2599,3 +2599,48 @@ header h1,
     transform: translateY(-3px) scale(1.015);
   }
 }
+
+
+/* management modal heading polish */
+.mgmt-modal-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 32px;
+  margin-bottom: 8px;
+  padding-right: 42px;
+}
+.mgmt-modal-heading h2 {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#mgmt-modal-stats {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 750;
+  line-height: 1.1;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 560px) {
+  .mgmt-modal-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-right: 36px;
+  }
+  #mgmt-modal-stats {
+    padding: 4px 8px;
+    font-size: 0.68rem;
+  }
+}
