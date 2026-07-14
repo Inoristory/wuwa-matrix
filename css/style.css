@@ -1146,6 +1146,17 @@ body.content-hidden .modal {
   margin-top: 3px;
   line-height: 1.2;
 }
+.team-slot-item .char-card .char-icon-wrap {
+  width: 64%;
+  max-width: var(--icon-s);
+}
+.team-slot-item .char-card .char-name {
+  display: block;
+  max-width: 100%;
+  margin-top: 2px;
+  overflow: hidden;
+  line-height: 1.15;
+}
 .team-slot-item .char-card:hover {
   border-color: var(--elem-color);
   background: var(--surface2);
@@ -2574,8 +2585,7 @@ header h1,
   width: auto;
   height: auto;
   margin: 0;
-  padding: var(--card-py) var(--card-px);
-  padding-top: calc(var(--card-py) + 14px);
+  padding: 4px 3px;
   border-radius: 12px;
   border-left-width: 3px;
   z-index: 1;
