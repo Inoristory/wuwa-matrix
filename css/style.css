@@ -2045,19 +2045,9 @@ header h1,
 header {
   isolation: isolate;
   overflow: visible;
-  padding: 14px 20px 14px 22px;
+  padding: 14px 20px;
   min-height: 62px;
   border-radius: 14px;
-}
-header::before {
-  content: '';
-  position: absolute;
-  inset: 10px auto 10px 0;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: linear-gradient(180deg, var(--accent), transparent 88%);
-  pointer-events: none;
-  z-index: 0;
 }
 header h1 {
   position: relative;
