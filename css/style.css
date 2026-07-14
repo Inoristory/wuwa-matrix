@@ -2569,13 +2569,16 @@ header h1,
   box-shadow: none;
 }
 .team-slot-item:has(.char-card) .char-card {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
   margin: 0;
   padding: var(--card-py) var(--card-px);
   padding-top: calc(var(--card-py) + 14px);
   border-radius: 12px;
   border-left-width: 3px;
+  z-index: 1;
 }
 .team-slot-item .char-card:hover {
   border-color: var(--elem-color);
