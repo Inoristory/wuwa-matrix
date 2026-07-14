@@ -2556,3 +2556,43 @@ header h1,
     font-size: 0.42rem;
   }
 }
+
+
+/* seamless team slot card treatment */
+.team-slot-item:has(.char-card) {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.team-slot-item:has(.char-card:hover) {
+  border-color: transparent;
+  box-shadow: none;
+}
+.team-slot-item:has(.char-card) .char-card {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: var(--card-py) var(--card-px);
+  padding-top: calc(var(--card-py) + 14px);
+  border-radius: 12px;
+  border-left-width: 3px;
+}
+.team-slot-item .char-card:hover {
+  border-color: var(--elem-color);
+  background: var(--surface2);
+  box-shadow: var(--shadow-md), 0 0 24px color-mix(in srgb, var(--elem-color) 22%, transparent);
+  transform: translateY(-4px) scale(1.025);
+}
+.team-slot-item .char-card:hover .char-icon-img {
+  border-color: var(--elem-color);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--elem-color) 25%, transparent), 0 0 12px color-mix(in srgb, var(--elem-color) 30%, transparent);
+  transform: scale(1.08);
+}
+.team-slot-item .char-card:hover .char-name {
+  color: var(--elem-color);
+}
+@media (max-width: 800px) {
+  .team-slot-item .char-card:hover {
+    transform: translateY(-3px) scale(1.015);
+  }
+}
