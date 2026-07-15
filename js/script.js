@@ -1777,7 +1777,7 @@ function initPointerDrag() {
   let ptr = null;
   let _activeFeedback = null;
   let _moveRaf = null;
-  const feedbackClasses = ['drag-over', 'drag-over-team', 'drop-receive', 'drag-over-add'];
+  const feedbackClasses = ['drag-over', 'drag-over-team', 'drop-receive', 'drag-over-add', 'drag-over-empty'];
 
   function clearFeedback() {
     if (_activeFeedback) {
@@ -1805,7 +1805,7 @@ function initPointerDrag() {
     const el = document.elementFromPoint(x, y);
     if (!el) return {};
     return { slot: el.closest('.team-slot-item'), card: el.closest('.team-card'),
-      pool: el.closest('#pool-section'), add: el.closest('#add-team-btn') };
+      pool: el.closest('#pool-section'), add: el.closest('#add-team-btn'), empty: el.closest('#teams-empty') };
   }
 
   function showFeedback(t) {
@@ -1820,6 +1820,7 @@ function initPointerDrag() {
       t.card.classList.add('drag-over-team'); _activeFeedback = t.card;
     }
     else if (t.add && ptr && (!ptr.data || !ptr.data.teamDrag)) { t.add.classList.add('drag-over-add'); _activeFeedback = t.add; }
+    else if (t.empty && ptr && (!ptr.data || !ptr.data.teamDrag)) { t.empty.classList.add('drag-over-empty'); _activeFeedback = t.empty; }
     else if (t.card && ptr && ptr.data && !ptr.data.teamDrag) {
       if (isTeamLocked(parseInt(t.card.dataset.teamIdx))) return;
       t.card.classList.add('drag-over-team'); _activeFeedback = t.card;
@@ -1926,6 +1927,9 @@ function initPointerDrag() {
     if (targets.add && !d.teamDrag) {
       createTeamFromChar(d);
     }
+    if (targets.empty && !d.teamDrag) {
+      createTeamFromChar(d);
+    }
   });
 
   document.addEventListener('pointercancel', clearPtr);
@@ -1993,6 +1997,7 @@ function initTeamsDragDrop() {
   const teamsList = $DOM['teams-list'];
   const pool = $DOM['pool-section'];
   const addBtn = $DOM['add-team-btn'];
+  const teamsEmpty = $DOM['teams-empty'];
 
   // Add team button
   addBtn.tabIndex = 0;
@@ -2008,6 +2013,22 @@ function initTeamsDragDrop() {
   addBtn.addEventListener('drop', (e) => {
     e.preventDefault();
     addBtn.classList.remove('drag-over-add');
+    const data = readDragPayload(e.dataTransfer);
+    if (data && !data.teamDrag) createTeamFromChar(data);
+  });
+
+  // Empty teams state drop target: create the first team directly.
+  teamsEmpty.addEventListener('dragover', (e) => {
+    if (e.dataTransfer.types.includes('application/x-team-drag')) return;
+    e.preventDefault();
+    teamsEmpty.classList.add('drag-over-empty');
+  });
+  teamsEmpty.addEventListener('dragleave', (e) => {
+    if (!teamsEmpty.contains(e.relatedTarget)) teamsEmpty.classList.remove('drag-over-empty');
+  });
+  teamsEmpty.addEventListener('drop', (e) => {
+    e.preventDefault();
+    teamsEmpty.classList.remove('drag-over-empty');
     const data = readDragPayload(e.dataTransfer);
     if (data && !data.teamDrag) createTeamFromChar(data);
   });
@@ -2205,6 +2226,12 @@ function initHideContent() {
   document.addEventListener('touchstart', showContent, { passive: true });
 }
 
+function initContextMenu() {
+  document.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+  });
+}
+
 function initActionButtons() {
   $DOM['btn-mgmt'].addEventListener('click', openMgmt);
   $DOM['btn-customize'].addEventListener('click', openCustomize);
@@ -2283,6 +2310,7 @@ function startApp() {
   initScrollButtons();
   initHideContent();
   initActionButtons();
+  initContextMenu();
   window.addEventListener('pagehide', flushPendingState);
 
   renderAll();

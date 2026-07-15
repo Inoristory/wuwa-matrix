@@ -2752,3 +2752,27 @@ header h1,
     transform: translateX(-180%) rotate(18deg);
   }
 }
+
+
+/* empty teams drop target */
+.teams-empty {
+  transition: border-color 0.2s var(--ease-in-out), background 0.2s var(--ease-in-out), color 0.2s var(--ease-in-out), transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
+}
+.teams-empty.drag-over-empty {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent), 0 12px 28px color-mix(in srgb, var(--accent) 15%, transparent);
+  animation: ui-drop-pulse 1.1s var(--ease-in-out) infinite;
+}
+.teams-empty.drag-over-empty .empty-icon {
+  color: var(--accent);
+  transform: scale(1.08);
+}
+@media (prefers-reduced-motion: reduce) {
+  .teams-empty.drag-over-empty {
+    animation: none;
+    transform: none;
+  }
+}
