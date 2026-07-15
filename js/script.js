@@ -952,7 +952,7 @@ function createTeamCard(idx, team) {
   header.innerHTML = `
     <div class="team-label">
       <span class="team-drag-handle" draggable="${!locked}" role="button" tabindex="${locked ? -1 : 0}" title="拖拽排序编队" aria-label="拖拽排序编队">⋮⋮</span>
-      <span class="team-name" title="点击修改编队名称" role="textbox" aria-label="编队名称"></span>
+      <span class="team-name" aria-label="编队名称"></span>
       <span class="badge ${isFull ? 'full' : 'incomplete'}">${count}/${MAX_PER_TEAM}</span>
     </div>
     <div class="team-actions">
@@ -967,19 +967,7 @@ function createTeamCard(idx, team) {
   `;
   const teamNameEl = header.querySelector('.team-name');
   teamNameEl.textContent = normalizeTeamName(state.teamsNames[idx], idx);
-  teamNameEl.contentEditable = !locked;
-  teamNameEl.spellcheck = false;
   function curIdx() { return parseInt(card.dataset.teamIdx); }
-  teamNameEl.addEventListener('blur', () => {
-    const ci = curIdx();
-    const text = teamNameEl.textContent.trim();
-    state.teamsNames[ci] = normalizeTeamName(text, ci);
-    teamNameEl.textContent = state.teamsNames[ci];
-    saveState();
-  });
-  teamNameEl.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); teamNameEl.blur(); }
-  });
 
   const delEl = header.querySelector('.team-del');
   delEl.addEventListener('click', () => deleteTeam(curIdx()));

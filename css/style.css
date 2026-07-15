@@ -2644,3 +2644,14 @@ header h1,
     font-size: 0.68rem;
   }
 }
+
+
+/* team names are display-only */
+.team-header .team-label .team-name {
+  cursor: default;
+}
+.team-header .team-label .team-name:hover,
+.team-header .team-label .team-name:focus {
+  background: transparent;
+  outline: none;
+}
