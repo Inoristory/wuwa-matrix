@@ -2976,3 +2976,195 @@ header h1 {
     min-height: 190px;
   }
 }
+
+
+/* frontend-design refinement */
+:root {
+  --ui-radius-xl: 18px;
+  --ui-radius-md: 12px;
+  --ui-surface-raised: color-mix(in srgb, var(--surface) 92%, var(--bg));
+  --ui-line: color-mix(in srgb, var(--border) 82%, transparent);
+}
+body {
+  font-family: "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  letter-spacing: 0.01em;
+}
+.app-shell {
+  max-width: 1460px;
+}
+header {
+  min-height: 66px;
+  padding: 13px 18px 13px 20px;
+  border-radius: var(--ui-radius-xl);
+  border-color: var(--ui-line);
+  box-shadow: 0 18px 44px color-mix(in srgb, var(--text) 10%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 20%, transparent);
+}
+header h1 {
+  font-size: clamp(1rem, 1.35vw, 1.35rem);
+  font-weight: 760;
+  letter-spacing: 0.9px;
+}
+.header-actions {
+  gap: 7px;
+}
+.header-actions .stats {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border));
+  color: var(--text-dim);
+}
+.container {
+  gap: 18px;
+}
+.section {
+  border-radius: var(--ui-radius-xl);
+  border-color: var(--ui-line);
+  box-shadow: 0 20px 48px color-mix(in srgb, var(--text) 9%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 18%, transparent);
+}
+.section-header {
+  min-height: 38px;
+  margin-bottom: 12px;
+  padding: 0 0 10px;
+}
+.section-title {
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  letter-spacing: 0.8px;
+}
+.section-title::before {
+  width: 26px;
+  height: 3px;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 32%, transparent);
+}
+.pool-hint {
+  font-size: 0.7rem;
+  opacity: 0.72;
+}
+.pool-filter-bar {
+  padding: 8px;
+  gap: 8px;
+  border-radius: var(--ui-radius-md);
+  background: color-mix(in srgb, var(--bg) 22%, transparent);
+  border-color: var(--ui-line);
+}
+.pool-search {
+  min-height: 40px;
+  border-radius: 10px;
+  padding-inline-start: 34px;
+  background: color-mix(in srgb, var(--ui-surface-raised) 84%, var(--bg));
+}
+.filter-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+.group-block {
+  margin-bottom: 10px;
+  border-radius: 14px;
+  border-color: var(--ui-line);
+  padding: 0 10px 10px;
+}
+.group-block:last-child {
+  margin-bottom: 0;
+}
+.group-label {
+  padding: 10px 8px 8px;
+  margin-bottom: 8px;
+  border-bottom-color: var(--ui-line);
+  font-size: 0.8rem;
+}
+.group-cards {
+  gap: 7px;
+}
+.char-card {
+  border-radius: 13px;
+  background: var(--ui-surface-raised);
+  box-shadow: 0 7px 16px color-mix(in srgb, var(--text) 8%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 11%, transparent);
+}
+.char-card:hover {
+  box-shadow: 0 16px 30px color-mix(in srgb, var(--text) 15%, transparent), 0 0 26px color-mix(in srgb, var(--elem-color) 20%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 22%, transparent);
+}
+#teams-section {
+  min-width: 0;
+}
+#teams-list {
+  gap: 11px;
+}
+.team-card {
+  border-radius: 14px;
+  padding: 12px 13px;
+  border-color: var(--ui-line);
+  box-shadow: 0 9px 22px color-mix(in srgb, var(--text) 9%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 13%, transparent);
+}
+.team-header {
+  min-height: 30px;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+.team-header .team-label {
+  gap: 7px;
+}
+.team-header .team-label .badge {
+  padding-inline: 8px;
+  border-radius: 999px;
+}
+.team-slots {
+  gap: 7px;
+}
+.team-slot-item {
+  border-radius: 13px;
+}
+.add-team-btn {
+  min-height: 46px;
+  border-radius: 13px;
+}
+.modal {
+  border-radius: var(--ui-radius-xl);
+}
+.modal h2 {
+  font-size: 1.15rem;
+  letter-spacing: 0.4px;
+}
+.mgmt-toolbar {
+  padding: 7px;
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-radius-md);
+  background: color-mix(in srgb, var(--bg) 16%, transparent);
+}
+.char-mgmt-item-wrapper {
+  border-radius: 10px;
+}
+@media (min-width: 801px) {
+  .container {
+    grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.82fr);
+  }
+  #pool-section,
+  #teams-section {
+    max-height: calc(100vh - 138px);
+  }
+}
+@media (max-width: 800px) {
+  header {
+    border-radius: 16px;
+  }
+  .section {
+    border-radius: 16px;
+  }
+}
+@media (max-width: 480px) {
+  header {
+    padding: 11px;
+  }
+  .header-actions .stats {
+    display: none;
+  }
+  .group-cards {
+    gap: 5px;
+  }
+  .group-block {
+    padding-inline: 7px;
+  }
+}
