@@ -3168,3 +3168,27 @@ header h1 {
     padding-inline: 7px;
   }
 }
+
+
+/* remove non-functional decorative lines and empty-state icon */
+body::after,
+[data-theme="dark"] body::after {
+  opacity: 0;
+  background: none;
+  background-image: none;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+header::after,
+.section::before {
+  display: none;
+}
+.teams-empty::before,
+.teams-empty::after,
+.teams-empty .empty-icon {
+  display: none;
+}
+.teams-empty {
+  min-height: 180px;
+  background: color-mix(in srgb, var(--surface2) 72%, transparent);
+}
