@@ -2655,3 +2655,100 @@ header h1,
   background: transparent;
   outline: none;
 }
+
+
+/* interaction motion polish */
+.btn,
+.theme-toggle,
+.actions-menu-trigger,
+.layout-toggle,
+.team-drag-handle,
+.team-header .team-lock,
+.team-header .team-del,
+.modal-close {
+  will-change: transform;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: -55%;
+  left: -42%;
+  width: 28%;
+  height: 210%;
+  background: linear-gradient(105deg, transparent, color-mix(in srgb, #fff 42%, transparent), transparent);
+  transform: translateX(-180%) rotate(18deg);
+  transition: transform 0.55s var(--ease-out);
+  pointer-events: none;
+}
+.btn-primary:hover::after {
+  transform: translateX(540%) rotate(18deg);
+}
+.btn:active,
+.theme-toggle:active,
+.actions-menu-trigger:active,
+.layout-toggle:active,
+.modal-close:active {
+  transition-duration: 0.06s;
+}
+.filter-btn.active {
+  animation: ui-filter-pop 0.24s var(--ease-out);
+}
+.char-card.is-current-version .char-new-badge {
+  animation: ui-badge-arrive 0.42s var(--ease-out);
+}
+.char-mgmt-item-wrapper.owned {
+  animation: ui-selection-in 0.22s var(--ease-out);
+}
+.team-card.entering {
+  animation: ui-card-arrive 0.38s var(--ease-out) both;
+}
+.team-card.drag-over-team,
+.team-slot-item.drag-over,
+.add-team-btn.drag-over-add {
+  animation: ui-drop-pulse 1.1s var(--ease-in-out) infinite;
+}
+.modal-overlay.active .modal {
+  animation: ui-modal-arrive 0.32s var(--ease-out) both;
+}
+@keyframes ui-filter-pop {
+  0% { transform: scale(0.88); }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+@keyframes ui-badge-arrive {
+  0% { opacity: 0; transform: translateY(-4px) scale(0.78); }
+  70% { opacity: 1; transform: translateY(0) scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes ui-selection-in {
+  0% { opacity: 0.72; transform: scale(0.96); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes ui-card-arrive {
+  0% { opacity: 0; transform: translateY(10px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes ui-drop-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 8%, transparent); }
+  50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 16%, transparent); }
+}
+@keyframes ui-modal-arrive {
+  0% { opacity: 0; transform: scale(0.96) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary::after,
+  .filter-btn.active,
+  .char-card.is-current-version .char-new-badge,
+  .char-mgmt-item-wrapper.owned,
+  .team-card.entering,
+  .team-card.drag-over-team,
+  .team-slot-item.drag-over,
+  .add-team-btn.drag-over-add,
+  .modal-overlay.active .modal {
+    animation: none;
+  }
+  .btn-primary:hover::after {
+    transform: translateX(-180%) rotate(18deg);
+  }
+}
