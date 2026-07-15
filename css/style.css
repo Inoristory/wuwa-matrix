@@ -2776,3 +2776,40 @@ header h1,
     transform: none;
   }
 }
+
+
+/* pointer spotlight motion */
+header,
+.section {
+  --pointer-x: 50%;
+  --pointer-y: 50%;
+}
+.section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: radial-gradient(circle 180px at var(--pointer-x) var(--pointer-y), color-mix(in srgb, var(--accent) 13%, transparent), transparent 72%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s var(--ease-in-out);
+  mix-blend-mode: screen;
+}
+.section.pointer-active::after {
+  opacity: 0.72;
+}
+header.pointer-active {
+  box-shadow: var(--ui-panel-shadow), 0 0 34px color-mix(in srgb, var(--accent) 10%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 30%, transparent);
+}
+@media (hover: none), (pointer: coarse) {
+  .section::after,
+  header.pointer-active {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .section::after {
+    display: none;
+  }
+}

@@ -2232,6 +2232,50 @@ function initContextMenu() {
   });
 }
 
+function initPointerMotion() {
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia?.('(pointer: fine)').matches) return;
+  const shell = document.querySelector('.app-shell');
+  if (!shell) return;
+  let active = null;
+  let frame = null;
+  let pending = null;
+
+  function clearActive() {
+    if (active) active.classList.remove('pointer-active');
+    active = null;
+  }
+
+  shell.addEventListener('pointermove', (event) => {
+    const target = event.target.closest('header, .section');
+    if (!target || !shell.contains(target)) {
+      clearActive();
+      return;
+    }
+    const rect = target.getBoundingClientRect();
+    pending = {
+      target,
+      x: ((event.clientX - rect.left) / Math.max(1, rect.width)) * 100,
+      y: ((event.clientY - rect.top) / Math.max(1, rect.height)) * 100,
+    };
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = null;
+      if (!pending) return;
+      const next = pending;
+      pending = null;
+      if (active !== next.target) {
+        clearActive();
+        active = next.target;
+        active.classList.add('pointer-active');
+      }
+      active.style.setProperty('--pointer-x', next.x.toFixed(2) + '%');
+      active.style.setProperty('--pointer-y', next.y.toFixed(2) + '%');
+    });
+  }, { passive: true });
+  shell.addEventListener('pointerleave', clearActive, { passive: true });
+}
+
 function initActionButtons() {
   $DOM['btn-mgmt'].addEventListener('click', openMgmt);
   $DOM['btn-customize'].addEventListener('click', openCustomize);
@@ -2309,6 +2353,7 @@ function startApp() {
   WUWA_DRAG.init();
   initScrollButtons();
   initHideContent();
+  initPointerMotion();
   initActionButtons();
   initContextMenu();
   window.addEventListener('pagehide', flushPendingState);
